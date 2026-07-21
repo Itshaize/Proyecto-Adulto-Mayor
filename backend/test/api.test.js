@@ -127,6 +127,8 @@ test('GET /api/pacientes/:id/exportar genera un PDF real y aplica filtros', asyn
   assert.equal(Buffer.isBuffer(response.body), true);
   assert.equal(response.body.subarray(0, 5).toString(), '%PDF-');
   assert.ok(response.body.length > 1500);
+  const pageCount = response.body.toString('latin1').match(/\/Type\s*\/Page\b/g)?.length || 0;
+  assert.equal(pageCount, 1, 'El reporte corto no debe crear páginas en blanco');
 });
 
 test('la exportación rechaza fechas inválidas y cuentas de adulto', async () => {

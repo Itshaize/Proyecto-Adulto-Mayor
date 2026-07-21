@@ -57,6 +57,7 @@ test('MongoDB persiste relaciones y deduplica eventos de Firebase', { skip: !uri
     const [excel, pdf] = await Promise.all([buildExcelReport(reportData), buildPdfReport(reportData)]);
     assert.equal(excel.subarray(0, 2).toString(), 'PK');
     assert.equal(pdf.subarray(0, 5).toString(), '%PDF-');
+    assert.equal(pdf.toString('latin1').match(/\/Type\s*\/Page\b/g)?.length || 0, 1);
   } finally {
     await mongoose.connection.dropDatabase();
     await mongoose.disconnect();

@@ -338,7 +338,7 @@ export async function buildPdfReport(data) {
   for (let index = pages.start; index < pages.start + pages.count; index += 1) {
     doc.switchToPage(index);
     doc.fillColor('#71879A').font('Helvetica').fontSize(7)
-      .text(`KAIRÓS · Documento confidencial · Página ${index + 1} de ${pages.count}`, 42, doc.page.height - 32, { width: doc.page.width - 84, align: 'center', lineBreak: false });
+      .text(`KAIRÓS · Documento confidencial · Página ${index + 1} de ${pages.count}`, 42, doc.page.height - 52, { width: doc.page.width - 84, align: 'center', lineBreak: false });
   }
   doc.end();
   await finished;
