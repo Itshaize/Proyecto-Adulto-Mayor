@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-adulto-layout',
@@ -8,6 +9,8 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
   styleUrl: './adulto-layout.component.scss',
 })
 export class AdultoLayoutComponent {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
   readonly notificacionesAbiertas = signal(false);
   readonly avisoCitaVisible = signal(true);
   readonly menu = [
@@ -20,4 +23,6 @@ export class AdultoLayoutComponent {
   alternarNotificaciones() {
     this.notificacionesAbiertas.update((abierto) => !abierto);
   }
+
+  salir() { this.auth.cerrarSesion(); this.router.navigateByUrl('/login'); }
 }

@@ -1,8 +1,7 @@
 <div class="app-shell">
   <aside class="sidebar" aria-label="Navegación principal">
-    <a class="brand" routerLink="/adulto/inicio" aria-label="Mi salud, ir al inicio">
-      <span class="brand__icon" aria-hidden="true">♥</span>
-      <span><strong>Mi salud</strong><small>Panel del adulto mayor</small></span>
+    <a class="brand" routerLink="/adulto/inicio" aria-label="KAIRÓS, ir al inicio">
+      <img src="assets/kairos-logo.svg" alt="KAIRÓS" />
     </a>
     <nav class="side-nav">
       @for (item of menu; track item.ruta) {
@@ -12,22 +11,22 @@
         </a>
       }
     </nav>
-    <button class="desktop-notification" type="button" (click)="alternarNotificaciones()" aria-haspopup="dialog">
+    <button class="desktop-notification notification-alert" type="button" (click)="alternarNotificaciones()" aria-haspopup="dialog" aria-label="Notificaciones: tiene un aviso nuevo">
       <span aria-hidden="true">●</span><span><strong>Notificaciones</strong><small>1 aviso nuevo</small></span>
     </button>
     <div class="sidebar__support">
       <span aria-hidden="true">🛡</span>
       <p><strong>Estamos contigo</strong><small>Tus datos están protegidos</small></p>
     </div>
+    <button class="logout" type="button" (click)="salir()"><span aria-hidden="true">↪</span> Cerrar sesión</button>
   </aside>
 
   <section class="content-shell">
     <header class="mobile-header">
-      <a class="brand" routerLink="/adulto/inicio">
-        <span class="brand__icon" aria-hidden="true">♥</span>
-        <span><strong>Mi salud</strong><small>Panel del adulto mayor</small></span>
+      <a class="brand" routerLink="/adulto/inicio" aria-label="KAIRÓS, ir al inicio">
+        <img src="assets/kairos-logo.svg" alt="KAIRÓS" />
       </a>
-      <button class="notification" type="button" aria-label="Ver notificaciones" (click)="alternarNotificaciones()" aria-haspopup="dialog">♧<span></span></button>
+      <div class="header-buttons"><button class="notification notification-alert" type="button" aria-label="Ver notificaciones, tiene un aviso nuevo" (click)="alternarNotificaciones()" aria-haspopup="dialog">♧<span></span></button><button class="mobile-logout" type="button" (click)="salir()" aria-label="Cerrar sesión">↪</button></div>
     </header>
     <main><router-outlet /></main>
   </section>

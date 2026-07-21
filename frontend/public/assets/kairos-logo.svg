@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 150" role="img" aria-labelledby="title desc">
+  <title id="title">KAIRÓS</title>
+  <desc id="desc">Logo KAIRÓS con reloj, persona y pulso cardiaco</desc>
+  <g fill="none" stroke="#0d3b78" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M40 77a54 54 0 1 1 104 0" stroke-width="7"/>
+    <path d="M93 25v10M55 42l9 9M131 42l-9 9M43 70h10M133 70h10" stroke-width="7"/>
+    <path d="M77 116l16 14 17-14M71 145c5-17 13-25 22-25s18 8 24 25H71Z" stroke-width="7"/>
+  </g>
+  <path d="M39 87h27l7-13 10 24 16-62 13 73 15-38 9 16h26" fill="none" stroke="#49aa63" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="185" y="105" fill="#0d3b78" font-family="Inter, Arial, sans-serif" font-size="72" font-weight="800" letter-spacing="3">KAIRÓS</text>
+</svg>
