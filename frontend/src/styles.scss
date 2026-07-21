@@ -108,3 +108,100 @@ h1, h2, h3, p { margin-top: 0; }
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 
+/* Sistema visual del panel del adulto. Se mantiene acotado para no alterar el administrador. */
+app-adulto-layout {
+  --primary: #0f8fa5;
+  --primary-dark: #087b91;
+  --secondary: #2684d8;
+  --success: #2eae73;
+  --warning: #f4a62a;
+  --danger: #e45252;
+  --background: #f5f8fb;
+  --surface: #ffffff;
+  --text: #17345b;
+  --muted: #6c7a90;
+  --border: #e4ebf2;
+  --shadow: 0 8px 28px rgba(34, 77, 120, .09);
+  display: block;
+  min-height: 100dvh;
+  color: var(--text);
+  font-family: 'Segoe UI Variable', 'Aptos', 'Segoe UI', Arial, sans-serif;
+  font-synthesis: none;
+}
+
+app-adulto-layout .app-shell {
+  background: radial-gradient(circle at 86% 0%, #eafafb 0, transparent 34%), var(--background);
+}
+
+app-adulto-layout .card {
+  background: rgba(255, 255, 255, .97);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+}
+
+app-adulto-layout .section-title {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  margin: 0 0 18px;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 750;
+  letter-spacing: -.015em;
+}
+
+app-adulto-layout .section-title .accent { color: var(--warning); }
+app-adulto-layout .eyebrow { margin: 0 0 5px; color: var(--muted); font-size: 15px; font-weight: 650; letter-spacing: 0; text-transform: none; }
+app-adulto-layout .page-title { margin: 0; font-size: clamp(25px, 3vw, 32px); line-height: 1.15; letter-spacing: -.035em; }
+app-adulto-layout .muted { color: var(--muted); }
+
+app-adulto-layout .status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 5px 13px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+app-adulto-layout .status--pendiente { color: #b86b05; background: #fff6e9; border: 1px solid #f7d9ac; }
+app-adulto-layout .status--tomada { color: #168557; background: #eaf8f0; border: 1px solid #c9ecd8; }
+app-adulto-layout .status--omitida { color: #b43f3f; background: #fff0f0; border: 1px solid #f4cccc; }
+
+app-adulto-layout .primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 24px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), #06aab2);
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(15, 143, 165, .2);
+  font-size: 18px;
+  font-weight: 750;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+app-adulto-layout .primary-button:hover { transform: translateY(-2px); box-shadow: 0 11px 22px rgba(15, 143, 165, .28); }
+app-adulto-layout .primary-button:active { transform: translateY(0) scale(.985); }
+app-adulto-layout .primary-button:disabled { background: #a7b6c4; box-shadow: none; cursor: default; transform: none; }
+app-adulto-layout a:focus-visible,
+app-adulto-layout button:focus-visible { outline: 3px solid rgba(38, 132, 216, .35); outline-offset: 3px; }
+
+@media (max-width: 767px) {
+  app-adulto-layout { font-size: 18px; }
+  app-adulto-layout .card { border-radius: 18px; box-shadow: 0 4px 16px rgba(34, 77, 120, .08); }
+  app-adulto-layout .page-title { font-size: 28px; }
+  app-adulto-layout .eyebrow { font-size: 16px; }
+  app-adulto-layout .muted { font-size: 17px !important; line-height: 1.5; }
+  app-adulto-layout .status { min-height: 38px; padding: 7px 14px; font-size: 15px; }
+  app-adulto-layout .primary-button { min-height: 64px; border-radius: 15px; font-size: 19px; }
+}
