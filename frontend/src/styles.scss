@@ -108,6 +108,46 @@ h1, h2, h3, p { margin-top: 0; }
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
 
+/* Preferencias locales de accesibilidad. No modifican datos ni comunicación con la API. */
+html.a11y-large-text :where(p, label, small, td, th, dt, dd, input, select, textarea) { font-size: max(1rem, 1em) !important; line-height: 1.55; }
+html.a11y-large-text :where(button, a) { font-size: max(.95rem, 1em) !important; }
+html.a11y-large-text :where(h1, h2, h3) { font-size: max(1.4rem, 1em) !important; line-height: 1.25; }
+
+html.a11y-high-contrast {
+  --primary: #00566b;
+  --primary-dark: #003f50;
+  --primary-soft: #dff7ff;
+  --secondary: #004f9e;
+  --success: #006b3c;
+  --success-soft: #e2f7ec;
+  --warning: #8a5300;
+  --warning-soft: #fff1c7;
+  --danger: #a30000;
+  --danger-soft: #ffe3e3;
+  --info-soft: #e3f1ff;
+  --background: #fff;
+  --surface: #fff;
+  --text: #000;
+  --text-muted: #252525;
+  --border: #262626;
+  --shadow: none;
+  --shadow-small: none;
+}
+
+html.a11y-high-contrast app-adulto-layout {
+  --primary: #00566b;
+  --primary-dark: #003f50;
+  --background: #fff;
+  --surface: #fff;
+  --text: #000;
+  --muted: #252525;
+  --border: #262626;
+  --shadow: none;
+}
+
+html.a11y-high-contrast :where(button, a, input, select, textarea):focus-visible { outline: 3px solid #d68400 !important; outline-offset: 3px !important; }
+html.a11y-high-contrast :where(.surface, .card, input, select, textarea, table) { border-color: #262626 !important; }
+
 /* Sistema visual del panel del adulto. Se mantiene acotado para no alterar el administrador. */
 app-adulto-layout {
   --primary: #0f8fa5;

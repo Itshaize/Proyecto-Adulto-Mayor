@@ -1,0 +1,61 @@
+<section class="accessibility" (click)="$event.stopPropagation()">
+  @if (isOpen()) {
+    <div class="accessibility-panel" id="accessibility-panel" role="dialog" aria-modal="false" aria-labelledby="accessibility-title">
+      <header>
+        <div>
+          <span>Preferencias visuales</span>
+          <h2 id="accessibility-title">Accesibilidad</h2>
+        </div>
+        <button class="close-button" type="button" aria-label="Cerrar opciones de accesibilidad" (click)="close()">×</button>
+      </header>
+
+      <p class="description">Elige cómo quieres ver la aplicación.</p>
+
+      <button
+        class="setting-button"
+        type="button"
+        role="switch"
+        [attr.aria-checked]="largeText()"
+        [class.active]="largeText()"
+        (click)="toggle('largeText')">
+        <span class="setting-icon text-icon" aria-hidden="true">Aa</span>
+        <span class="setting-copy">
+          <strong>Letra grande</strong>
+          <small>Hace los textos más fáciles de leer</small>
+        </span>
+        <span class="switch-indicator" aria-hidden="true"><i></i></span>
+      </button>
+
+      <button
+        class="setting-button"
+        type="button"
+        role="switch"
+        [attr.aria-checked]="highContrast()"
+        [class.active]="highContrast()"
+        (click)="toggle('highContrast')">
+        <span class="setting-icon contrast-icon" aria-hidden="true"></span>
+        <span class="setting-copy">
+          <strong>Alto contraste</strong>
+          <small>Resalta textos, botones y bordes</small>
+        </span>
+        <span class="switch-indicator" aria-hidden="true"><i></i></span>
+      </button>
+
+      <p class="saved-note" aria-live="polite">Los cambios se guardan en este dispositivo.</p>
+    </div>
+  }
+
+  <button
+    class="accessibility-trigger"
+    type="button"
+    aria-label="Abrir opciones de accesibilidad"
+    aria-controls="accessibility-panel"
+    [attr.aria-expanded]="isOpen()"
+    (click)="toggleMenu($event)">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="4" r="2.2"/>
+      <path d="M4 8.2c4.7 1.2 11.3 1.2 16 0M12 8.7V21M8.2 21l3.8-7 3.8 7"/>
+    </svg>
+    <span>Accesibilidad</span>
+  </button>
+</section>
