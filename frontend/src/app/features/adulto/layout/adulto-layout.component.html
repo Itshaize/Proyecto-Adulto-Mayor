@@ -1,0 +1,68 @@
+<div class="app-shell">
+  <aside class="sidebar" aria-label="Navegación principal">
+    <a class="brand" routerLink="/adulto/inicio" aria-label="KAIRÓS, ir al inicio">
+      <img src="assets/kairos-logo.svg" alt="KAIRÓS" />
+    </a>
+    <nav class="side-nav">
+      @for (item of menu; track item.ruta) {
+        <a [routerLink]="item.ruta" routerLinkActive="active">
+          <span class="nav-icon" aria-hidden="true">{{ item.icono }}</span>
+          <span>{{ item.texto }}</span>
+        </a>
+      }
+    </nav>
+    <button class="desktop-notification notification-alert" type="button" (click)="alternarNotificaciones()" aria-haspopup="dialog" aria-label="Notificaciones: tiene un aviso nuevo">
+      <span aria-hidden="true">●</span><span><strong>Notificaciones</strong><small>{{ alertas().length }} aviso(s) nuevo(s)</small></span>
+    </button>
+    <div class="sidebar__support">
+      <span aria-hidden="true">🛡</span>
+      <p><strong>Estamos contigo</strong><small>Tus datos están protegidos</small></p>
+    </div>
+    <button class="logout" type="button" (click)="salir()"><span aria-hidden="true">↪</span> Cerrar sesión</button>
+  </aside>
+
+  <section class="content-shell">
+    <header class="mobile-header">
+      <a class="brand" routerLink="/adulto/inicio" aria-label="KAIRÓS, ir al inicio">
+        <img src="assets/kairos-logo.svg" alt="KAIRÓS" />
+      </a>
+      <div class="header-buttons"><button class="notification notification-alert" type="button" aria-label="Ver notificaciones, tiene un aviso nuevo" (click)="alternarNotificaciones()" aria-haspopup="dialog">♧<span></span></button><button class="mobile-logout" type="button" (click)="salir()" aria-label="Cerrar sesión"><b aria-hidden="true">↪</b><span>Salir</span></button></div>
+    </header>
+    <main><router-outlet /></main>
+  </section>
+
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    @for (item of menu; track item.ruta) {
+      <a [routerLink]="item.ruta" routerLinkActive="active">
+        <span class="nav-icon" aria-hidden="true">{{ item.icono }}</span>
+        <span>{{ item.texto }}</span>
+      </a>
+    }
+  </nav>
+
+  @if (notificacionesAbiertas()) {
+    <div class="notice-panel card" role="dialog" aria-label="Notificaciones">
+      <div class="notice-panel__header"><h2>Notificaciones</h2><button type="button" (click)="notificacionesAbiertas.set(false)" aria-label="Cerrar notificaciones">×</button></div>
+      @if (alertaPrincipal; as alerta) {
+        <article><span class="notice-icon">▣</span><div><strong>{{ alerta.titulo }}</strong><p>{{ alerta.mensaje }}</p><small>{{ alerta.fechaHora | date:'short' }}</small></div></article>
+      } @else {
+        <article><div><strong>No tiene avisos pendientes</strong><p>Todo está al día.</p></div></article>
+      }
+      <a routerLink="/adulto/receta" (click)="notificacionesAbiertas.set(false)">Ver receta médica</a>
+    </div>
+  }
+
+  @if (avisoCitaVisible()) {
+    <div class="appointment-backdrop">
+      <section class="appointment-modal card" role="alertdialog" aria-modal="true" aria-labelledby="appointment-title">
+        <button class="modal-close" type="button" (click)="avisoCitaVisible.set(false)" aria-label="Cerrar aviso">×</button>
+        <div class="calendar-icon" aria-hidden="true">▣</div>
+        <p class="eyebrow">Recordatorio importante</p>
+        <h2 id="appointment-title">{{ alertaPrincipal.titulo || 'Tiene una cita próxima' }}</h2>
+        <div class="appointment-data"><strong>{{ alertaPrincipal.mensaje }}</strong></div>
+        <button class="primary-button" type="button" (click)="avisoCitaVisible.set(false)">Entendido</button>
+        <a routerLink="/adulto/receta" (click)="avisoCitaVisible.set(false)">Ver mi receta médica</a>
+      </section>
+    </div>
+  }
+</div>

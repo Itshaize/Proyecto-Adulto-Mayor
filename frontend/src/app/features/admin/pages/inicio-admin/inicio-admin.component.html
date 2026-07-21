@@ -1,0 +1,20 @@
+<div class="page-shell dashboard">
+  <header class="page-header"><div><span class="eyebrow">Panel familiar</span><h1>Buenos días, Daniel</h1><p>Este es el estado de {{resumen?.paciente?.nombre||'tu familiar'}} hoy.</p></div><span class="connection"><i></i> {{resumen?.dispositivo?.estado==='CONECTADO'?'Dispositivo conectado':'Esperando dispositivo'}}</span></header>
+  @if(loading){<div class="loading-grid" aria-label="Cargando panel"><div class="skeleton wide"></div><div class="skeleton tall"></div><div class="skeleton tall"></div><div class="skeleton tall"></div></div>}
+  @if(error){<div class="inline-error">{{error}} <button class="btn-link" type="button" (click)="load()">Reintentar</button></div>}
+  @if(resumen;as r){
+    <app-resumen-salud [metrics]="metrics" />
+    <div class="dashboard-grid">
+      <div class="left-column">
+        <section><div class="section-title"><div><h2>Estado del paciente</h2></div></div><app-tarjeta-paciente [paciente]="r.paciente" /></section>
+        <section class="surface chart-card"><div class="section-title"><div><h2>Historial de pulsaciones <small>(lpm)</small></h2><p>Lecturas recientes del MAX30102</p></div><a class="mini-action" routerLink="/admin/historial">Ver historial</a></div><app-grafico-pulsaciones [data]="r.mediciones" /></section>
+        <section class="surface spo-card"><div class="section-title"><div><h2>Oxigenación</h2><p>Seguimiento de SpO₂</p></div>@if(r.ultimaMedicion;as lectura){<span class="badge" [class.warning]="lectura.spo2<95" [class.success]="lectura.spo2>=95">{{lectura.estadoSalud}}</span>}@else{<span class="badge muted">Sin lecturas</span>}</div>@if(r.mediciones.length){<app-grafico-spo2 [mediciones]="r.mediciones" />}@else{<div class="empty-state"><div><h3>Aún no hay mediciones</h3><p>Las lecturas del dispositivo aparecerán aquí.</p></div></div>}</section>
+        <section class="surface history-card"><div class="section-title"><div><h2>Historial de medicación</h2><p>Últimas confirmaciones</p></div><a class="mini-action" routerLink="/admin/historial">Ver completo</a></div><app-historial-medicacion [tomas]="r.medicamentosHoy" /></section>
+      </div>
+      <div class="right-column">
+        <section class="surface medicines-card"><div class="section-title"><div><h2>Medicamentos de hoy</h2><p>{{r.tomasResumen.tomadas}} de {{r.tomasResumen.total}} confirmados</p></div><a class="btn add-button" routerLink="/admin/medicamentos"><app-icon name="plus" [size]="17"/> Agregar medicamento</a></div><app-tabla-medicamentos [tomas]="r.medicamentosHoy"/><a class="see-all" routerLink="/admin/medicamentos">Ver todos</a></section>
+        <section class="surface alerts-card"><div class="section-title"><div><h2>Alertas recientes</h2><p>Ordenadas por prioridad</p></div><a class="mini-action" routerLink="/admin/alertas">Ver todas</a></div><app-lista-alertas [alertas]="r.alertas.slice(0,4)"/></section>
+      </div>
+    </div>
+  }
+</div>

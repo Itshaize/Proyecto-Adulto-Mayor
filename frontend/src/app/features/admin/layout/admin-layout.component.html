@@ -1,0 +1,27 @@
+<div class="admin-frame">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/admin/inicio" aria-label="Ir al inicio">
+      <span class="brand-mark"><app-icon name="heart" [size]="24" /></span><span>Panel del hijo<small>Administrador</small></span>
+    </a>
+    <nav aria-label="Navegación principal">
+      @for (item of nav; track item.path) {
+        <a [routerLink]="item.path" routerLinkActive="active"><app-icon [name]="item.icon" [size]="21" /><span>{{ item.label }}</span>@if(item.badge){<strong>{{item.badge}}</strong>}</a>
+      }
+    </nav>
+    <div class="care-note"><span><app-icon name="heart" [size]="23" /></span><p>Cuidar de papá es cuidar de lo que más importa.</p></div>
+    <button class="logout" type="button" (click)="logout()"><app-icon name="logout" [size]="19" /> Cerrar sesión</button>
+  </aside>
+
+  <div class="content-area">
+    <header class="topbar">
+      <a class="mobile-logo" routerLink="/admin/inicio"><span class="brand-mark"><app-icon name="heart" [size]="20" /></span><span>Panel del hijo<small>Administrador</small></span></a>
+      <div class="top-actions"><div class="date"><app-icon name="calendar" [size]="17" /><span>{{ today | date:'d MMMM y':'':'es' }}</span></div><div class="profile"><span class="avatar">DP</span><span><strong>{{ usuario?.nombre || 'Daniel Pérez' }}</strong><small>Administrador</small></span></div></div>
+    </header>
+    <main><router-outlet /></main>
+  </div>
+
+  <nav class="bottom-nav" aria-label="Navegación móvil">
+    @for (item of nav.slice(0,5); track item.path) { <a [routerLink]="item.path" routerLinkActive="active"><span class="nav-icon"><app-icon [name]="item.icon" [size]="21" />@if(item.badge){<strong>{{item.badge}}</strong>}</span><small>{{item.label}}</small></a> }
+  </nav>
+  <app-toast />
+</div>

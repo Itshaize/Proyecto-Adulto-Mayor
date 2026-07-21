@@ -1,0 +1,24 @@
+<section class="welcome card">
+  <app-saludo-adulto [estado]="data.estadoGeneral()" [nombre]="data.nombrePaciente()" />
+  <app-boton-llamar-hijo [telefono]="data.telefonoHijo" />
+</section>
+
+<section class="mobile-main-actions" aria-label="Acciones principales">
+  <app-boton-llamar-hijo [telefono]="data.telefonoHijo" />
+  <a class="medicine-button" routerLink="/adulto/medicinas"><span aria-hidden="true">◒</span><span><strong>Ver mis medicinas</strong><small>Horarios y pastillas de hoy</small></span><b aria-hidden="true">›</b></a>
+</section>
+
+<div class="dashboard-grid">
+  <app-proxima-pastilla [pastilla]="data.proximaPastilla()" />
+  <app-lista-medicamentos-hoy [medicamentos]="data.medicamentos()" />
+  <app-salud-actual [medicion]="data.ultimaMedicion()" />
+
+  <section class="chart-card card">
+    <h2 class="section-title">Pulsaciones recientes</h2>
+    <app-grafico-pulsaciones-simple [valores]="pulsaciones" [etiquetas]="fechas" />
+  </section>
+
+  <app-recordatorios [proxima]="data.proximaPastilla()" />
+</div>
+
+<a class="history-link" routerLink="/adulto/salud"><span>▥</span> Ver historial</a>

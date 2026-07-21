@@ -1,0 +1,8 @@
+<header class="page-header"><p class="eyebrow">Estamos para ayudarle</p><h1 class="page-title">Ayuda</h1><p class="muted">Encuentre aquí lo que necesita de manera sencilla.</p></header>
+
+<section class="call card"><div class="call__icon" aria-hidden="true">☎</div><div><h2>¿Necesita hablar con su familiar?</h2><p>Puede llamarlo directamente desde su teléfono.</p><strong>{{ data.nombreHijo() }} · {{ data.telefonoHijo }}</strong></div><app-boton-llamar-hijo [telefono]="data.telefonoHijo" /></section>
+
+<section class="instructions card"><div class="instructions__heading"><span aria-hidden="true">●</span><div><h2>Cómo confirmar una pastilla con el pulsador</h2><p>El pulsador registra que tomó su medicina.</p></div></div><ol><li><span>1</span><div><strong>Tome la pastilla</strong><p>Revise el nombre y la hora antes de tomarla.</p></div></li><li><span>2</span><div><strong>Presione el pulsador</strong><p>Presiónelo una sola vez después de tomar la pastilla.</p></div></li><li><span>3</span><div><strong>Espere la confirmación</strong><p>Verá un mensaje que indica que la toma fue registrada.</p></div></li></ol></section>
+
+<section class="tip card"><span>♥</span><p><strong>Recuerde:</strong> Si presionó el botón por error o se siente mal, llame a su hijo para recibir ayuda.</p></section>
+<a class="back" routerLink="/adulto/inicio">← Volver al inicio</a>

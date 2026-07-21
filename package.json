@@ -1,0 +1,17 @@
+{
+  "name": "sistema-monitoreo-salud-medicacion",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix frontend",
+    "dev": "concurrently -n API,WEB -c yellow,cyan \"npm run dev --prefix backend\" \"npm start --prefix frontend\"",
+    "preview": "node scripts/serve-static.mjs",
+    "build": "npm run build --prefix frontend",
+    "test": "npm test --prefix backend",
+    "verify": "npm test --prefix backend && npm run build --prefix frontend -- --progress=false",
+    "visual:check": "node scripts/visual-check.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

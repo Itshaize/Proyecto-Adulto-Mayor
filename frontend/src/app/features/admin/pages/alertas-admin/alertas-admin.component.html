@@ -1,0 +1,7 @@
+<div class="page-shell">
+  <header class="page-header"><div><span class="eyebrow">Centro de avisos</span><h1>Alertas</h1><p>Revisa primero lo que requiere atención.</p></div><span class="unread-count"><strong>{{unread}}</strong> sin leer</span></header>
+  <div class="alerts-layout">
+    <section class="alerts-main surface"><header class="alerts-toolbar"><div class="filters"><button [class.active]="filter==='TODAS'" (click)="filter='TODAS'">Todas</button><button [class.active]="filter==='NO_LEIDAS'" (click)="filter='NO_LEIDAS'">No leídas</button><button [class.active]="filter==='LEIDAS'" (click)="filter='LEIDAS'">Leídas</button></div><span>{{filtered.length}} alertas</span></header>@if(loading){<div class="skeleton list-skeleton"></div>}@if(error){<div class="inline-error">{{error}}</div>}<div (click)="selected=null"><app-lista-alertas [alertas]="filtered" [showAction]="true" (leer)="read($event)"/></div></section>
+    <aside class="summary surface"><span class="summary-icon"><app-icon name="bell" [size]="25"/></span><h2>Prioridad de hoy</h2><p>Las alertas críticas y de medicación se muestran primero para ayudarte a actuar a tiempo.</p><dl><div><dt>Críticas</dt><dd class="danger">{{criticalCount}}</dd></div><div><dt>Advertencias</dt><dd class="warning">{{warningCount}}</dd></div><div><dt>Informativas</dt><dd>{{infoCount}}</dd></div></dl><hr><small>Paciente</small><strong>{{pacienteNombre}}</strong><span class="patient-id">ID {{PACIENTE_ID.slice(-5)}}</span></aside>
+  </div>
+</div>
