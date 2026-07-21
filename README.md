@@ -4,7 +4,7 @@ Aplicación responsive para el hijo administrador y el adulto mayor, construida 
 
 ## Inicio rápido
 
-Requisitos: Node.js 20.19 o superior y npm.
+Requisitos: Node.js 22 o superior y npm (Firebase Admin 14 requiere Node 22+).
 
 ```bash
 npm run install:all
@@ -37,6 +37,7 @@ La semilla usa `upsert`: puede ejecutarse nuevamente sin duplicar el paciente ni
 npm run dev          # API en :3000 y Angular en :4200
 npm run build        # build Angular de producción
 npm test             # pruebas HTTP del backend
+npm run test:mongodb --prefix backend # integración real en una base aislada
 npm run verify       # pruebas backend + build frontend
 npm run visual:check # capturas headless; requiere Chrome y API activa
 ```
@@ -77,6 +78,7 @@ Todas las respuestas usan el contrato `{ ok, mensaje, data }` o `{ ok, mensaje, 
 - `GET /api/mediciones/paciente/:pacienteId`
 - `GET|PATCH /api/alertas`
 - `GET /api/dispositivos/:dispositivoId/estado`
+- `GET /api/integraciones/firebase/estado`
 
 Los endpoints administrativos requieren `Authorization: Bearer <JWT>`. Las validaciones impiden edad menor a 1, dispositivo vacío, medicamentos incompletos, horarios repetidos y eliminación de medicamentos con historial. El paciente registrado queda seleccionado para todo el panel mediante el contexto local de la sesión.
 
@@ -100,6 +102,24 @@ backend/src/
 
 `npm run visual:check` genera localmente capturas del login, ambos paneles, registro de paciente, receta completa y vistas de escritorio/teléfono dentro de `artifacts/`.
 
-## Integración IoT
+## Integración IoT con Firebase
 
-El panel ya consume las rutas de mediciones y dispositivo previstas para la integración. La lectura Firebase/ESP32 no está implementada aquí porque corresponde al módulo de Juan; debe alimentar Node.js, nunca el frontend directamente.
+El backend usa Firebase Admin para escuchar hasta las 100 lecturas más recientes de Realtime Database y guardar sólo eventos nuevos en MongoDB. Angular nunca recibe las credenciales ni se conecta directamente a Firebase.
+
+Configura `FIREBASE_DATABASE_URL` y una de estas opciones en `backend/.env`:
+
+- `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL` y `FIREBASE_PRIVATE_KEY`.
+- `GOOGLE_APPLICATION_CREDENTIALS` con la ruta absoluta al JSON de la cuenta de servicio.
+
+El ESP32 debe crear cada lectura en `/lecturas/{idEvento}` (ruta configurable con `FIREBASE_LECTURAS_PATH`) usando este contrato:
+
+```json
+{
+  "dispositivoId": "ESP32-001",
+  "pulsaciones": 72,
+  "spo2": 96,
+  "timestamp": 1784637900000
+}
+```
+
+También se aceptan los alias `deviceId`, `bpm`, `heartRate`, `oxigeno` y marcas de tiempo ISO o Unix. El dispositivo debe existir previamente y estar vinculado al paciente. El estado se consulta, con sesión iniciada, en `GET /api/integraciones/firebase/estado`; esa respuesta nunca expone secretos.

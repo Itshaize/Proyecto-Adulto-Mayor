@@ -8,6 +8,7 @@ import { pacienteRoutes } from './routes/paciente.routes.js';
 import { medicamentoRoutes } from './routes/medicamento.routes.js';
 import { alertaRoutes } from './routes/alerta.routes.js';
 import { tomaRoutes, medicionRoutes, dispositivoRoutes } from './routes/consulta.routes.js';
+import { integracionRoutes } from './routes/integracion.routes.js';
 import { requireAuth } from './middleware/auth.js';
 import { fail, ok } from './utils/http.js';
 
@@ -23,6 +24,7 @@ app.use('/api/tomas', requireAuth, tomaRoutes);
 app.use('/api/mediciones', requireAuth, medicionRoutes);
 app.use('/api/alertas', requireAuth, alertaRoutes);
 app.use('/api/dispositivos', requireAuth, dispositivoRoutes);
+app.use('/api/integraciones', requireAuth, integracionRoutes);
 
 const frontendDist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../frontend/dist/salud-medicacion-web/browser');
 if (fs.existsSync(frontendDist)) {

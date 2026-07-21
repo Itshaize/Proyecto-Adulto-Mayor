@@ -114,6 +114,18 @@ try {
   await sleep(1200);
   const mobileShot = await call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, fromSurface: true });
   await writeFile(path.join(output, 'dashboard-mobile.png'), Buffer.from(mobileShot.data, 'base64'));
+
+  const mobileLogout = await call('Runtime.evaluate', {
+    expression: `(() => { const button = document.querySelector('.mobile-logout'); if (!button) return false; button.click(); return true; })()`,
+    returnByValue: true,
+  });
+  if (!mobileLogout.result.value) throw new Error('No apareció el botón móvil para cerrar sesión.');
+  await waitForSelector('.login-page');
+  const sessionRemoved = await call('Runtime.evaluate', {
+    expression: `!localStorage.getItem('salud_token') && !localStorage.getItem('salud_usuario')`,
+    returnByValue: true,
+  });
+  if (!sessionRemoved.result.value) throw new Error('Cerrar sesión no limpió las credenciales locales.');
   console.info(`Capturas creadas en ${output}`);
 } finally {
   if (socket) {
@@ -131,4 +143,3 @@ try {
     catch (error) { if (attempt === 5) console.warn(`No se pudo limpiar el perfil temporal: ${error.message}`); else await sleep(700); }
   }
 }
-process.exit(0);
