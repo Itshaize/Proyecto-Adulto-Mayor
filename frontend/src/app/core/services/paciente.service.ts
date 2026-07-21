@@ -9,6 +9,7 @@ export interface ResumenAdulto { nombreHijo?: string; telefonoHijo?: string; est
 @Injectable({ providedIn: 'root' })
 export class PacienteService {
   constructor(private readonly http: HttpClient) {}
+  getMisPacientes() { return this.http.get<ApiResponse<Paciente[]>>(`${environment.apiUrl}/pacientes`); }
   getPaciente(id: string) { return this.http.get<ApiResponse<Paciente>>(`${environment.apiUrl}/pacientes/${id}`); }
   getResumenPaciente(id: string) { return this.http.get<ApiResponse<ResumenAdmin>>(`${environment.apiUrl}/pacientes/${id}/resumen`); }
   getResumenAdulto(id: string) { return this.http.get<ApiResponse<ResumenAdulto>>(`${environment.apiUrl}/pacientes/${id}/resumen-adulto`); }

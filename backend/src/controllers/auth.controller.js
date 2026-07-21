@@ -3,23 +3,21 @@ import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import { Usuario } from '../models/Usuario.js';
 import { Paciente } from '../models/Paciente.js';
+import { demoStore } from '../data/demo-store.js';
 import { ok, fail, handleError } from '../utils/http.js';
 
 export async function login(req, res) {
   try {
-    const { correo, password } = req.body;
+    const { password } = req.body;
+    const correo = req.body.correo.trim().toLowerCase();
     let usuario;
     let validPassword;
     if (mongoose.connection.readyState === 1) {
       usuario = await Usuario.findOne({ correo, activo: true }).lean();
       validPassword = usuario && await bcrypt.compare(password, usuario.passwordHash);
     } else {
-      usuario = correo === 'daniel@salud.ec'
-        ? { _id: '66a000000000000000000010', nombre: 'Daniel Pérez', correo, rol: 'HIJO_ADMIN' }
-        : correo === 'carlos@salud.ec'
-          ? { _id: '66a000000000000000000011', nombre: 'Carlos Pérez', correo, rol: 'ADULTO_MAYOR', pacienteId: '66a000000000000000000001' }
-          : null;
-      validPassword = password === 'Admin123';
+      usuario = demoStore.usuarios.find((item) => item.correo === correo.trim().toLowerCase() && item.activo);
+      validPassword = usuario && usuario.password === password;
     }
     if (!usuario || !validPassword) return fail(res, 'Correo o contraseña incorrectos', 401);
     let pacienteId = usuario.pacienteId;

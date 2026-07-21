@@ -1,6 +1,15 @@
 import { dateInTimeZone } from '../utils/date.js';
 
 const patientId = '66a000000000000000000001';
+const adminId = '66a000000000000000000010';
+const adultId = '66a000000000000000000011';
+const pacienteInicial = {
+  _id: patientId,
+  nombre: 'Carlos Pérez', edad: 78, fechaNacimiento: '1948-05-10',
+  diagnosticos: ['Hipertensión', 'Diabetes tipo 2'], telefonoContacto: '+593999999999',
+  hijoAdminId: adminId, usuarioAdultoId: adultId,
+  dispositivoId: 'ESP32-001', activo: true
+};
 
 const isoAt = (daysAgo, hour, minute = 0) => {
   const date = new Date();
@@ -16,13 +25,12 @@ const dateKey = (daysAgo = 0) => {
 
 export const demoStore = {
   patientId,
-  paciente: {
-    _id: patientId,
-    nombre: 'Carlos Pérez', edad: 78, fechaNacimiento: '1948-05-10',
-    diagnosticos: ['Hipertensión', 'Diabetes tipo 2'], telefonoContacto: '+593999999999',
-    hijoAdminId: '66a000000000000000000010', usuarioAdultoId: '66a000000000000000000011',
-    dispositivoId: 'ESP32-001', activo: true
-  },
+  paciente: pacienteInicial,
+  pacientes: [pacienteInicial],
+  usuarios: [
+    { _id: adminId, nombre: 'Daniel Pérez', correo: 'daniel@salud.ec', password: 'Admin123', rol: 'HIJO_ADMIN', telefono: '+593999999999', activo: true },
+    { _id: adultId, nombre: 'Carlos Pérez', correo: 'carlos@salud.ec', password: 'Admin123', rol: 'ADULTO_MAYOR', telefono: '+593999999999', pacienteId: patientId, activo: true }
+  ],
   medicamentos: [
     { _id: '66b000000000000000000001', pacienteId: patientId, nombre: 'Losartán', concentracion: '50 mg', dosis: '1 tableta', horarios: ['08:00'], frecuencia: 'DIARIA', indicaciones: 'Después del desayuno', activo: true, tieneHistorial: true },
     { _id: '66b000000000000000000002', pacienteId: patientId, nombre: 'Metformina', concentracion: '850 mg', dosis: '1 tableta', horarios: ['13:00'], frecuencia: 'DIARIA', indicaciones: 'Con alimentos', activo: true, tieneHistorial: true },

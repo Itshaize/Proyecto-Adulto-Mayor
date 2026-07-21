@@ -19,7 +19,7 @@ import { IconComponent } from '../../shared/icon/icon.component';
           <div class="mobile-brand brand"><span class="brand-mark"><app-icon name="heart" [size]="22" /></span><span>Panel del hijo</span></div>
           <span class="eyebrow">Bienvenido</span><h2>Inicia sesión</h2><p class="intro">Ingresa para registrar y cuidar a tu familiar.</p>
           @if (error) { <div class="inline-error" role="alert">{{ error }}</div> }
-          <div class="form-field"><label for="correo">Correo electrónico</label><input id="correo" class="input" type="email" formControlName="correo" autocomplete="email"><small>Administrador: daniel&#64;salud.ec · Adulto: carlos&#64;salud.ec</small></div>
+          <div class="form-field"><label for="correo">Correo electrónico</label><input id="correo" class="input" type="email" formControlName="correo" autocomplete="email"><small>Usa el correo que el administrador registró para tu cuenta.</small></div>
           <div class="form-field"><label for="password">Contraseña</label><input id="password" class="input" type="password" formControlName="password" autocomplete="current-password"><small>Clave de demostración: Admin123</small></div>
           <button class="btn btn-primary submit" type="submit" [disabled]="loading">{{ loading ? 'Ingresando…' : 'Ingresar' }}</button>
           <p class="privacy">Información protegida para el círculo familiar autorizado.</p>

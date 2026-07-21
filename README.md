@@ -1,6 +1,6 @@
 # Sistema de Monitoreo de Salud y Medicación
 
-Aplicación responsive para el hijo administrador y el adulto mayor, construida con Angular, Node.js, Express y MongoDB. Incluye sesión JWT por roles, registro del padre, seguimiento del paciente, CRUD de medicamentos, carga de recetas completas, confirmación de tomas, historiales, mediciones del MAX30102, alertas y estado del ESP32.
+Aplicación responsive para el hijo administrador y el adulto mayor, construida con Angular, Node.js, Express y MongoDB. Incluye sesión JWT por roles, registro de hasta dos adultos por administrador, creación de credenciales con correo, seguimiento del paciente, CRUD de medicamentos, carga de recetas completas, confirmación de tomas, historiales, mediciones del MAX30102, alertas y estado del ESP32.
 
 ## Inicio rápido
 
@@ -59,6 +59,8 @@ El backend también sirve el build ubicado en `frontend/dist` desde `http://loca
 - `/adulto/receta`
 
 Cada rol está protegido por guardas de ruta. La navegación es lateral desde `768px` y se convierte en barra inferior en teléfono; las tablas de administración se convierten en tarjetas móviles y la vista del adulto usa controles grandes y lectura simplificada.
+
+Al registrar un adulto desde `/admin/paciente`, el administrador define su correo y una contraseña temporal. El backend crea simultáneamente la cuenta `ADULTO_MAYOR`, la enlaza con la ficha del paciente y rechaza un tercer adulto o un correo repetido.
 
 ## API
 

@@ -72,7 +72,9 @@ try {
   await writeFile(path.join(output, 'dashboard-desktop.png'), Buffer.from(desktopShot.data, 'base64'));
 
   await call('Runtime.evaluate', { expression: `document.querySelector('a[href="/admin/paciente"]')?.click()` });
-  await waitForSelector('.register-button');
+  await waitForSelector('.patient-switcher');
+  await call('Runtime.evaluate', { expression: `document.querySelector('.register-button')?.click()` });
+  await waitForSelector('#correo-acceso');
   await sleep(500);
   const patientShot = await call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, fromSurface: true });
   await writeFile(path.join(output, 'registro-paciente.png'), Buffer.from(patientShot.data, 'base64'));

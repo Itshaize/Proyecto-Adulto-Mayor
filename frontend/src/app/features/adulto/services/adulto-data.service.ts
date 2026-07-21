@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { MedicamentoService } from '../../../core/services/medicamento.service';
 import { MedicionService } from '../../../core/services/medicion.service';
@@ -62,7 +62,7 @@ export class AdultoDataService {
       tomasHoy: this.tomasApi.getHoy(this.pacienteId),
       historial: this.tomasApi.getByPaciente(this.pacienteId, 7),
       medicamentos: this.medicamentosApi.getByPaciente(this.pacienteId),
-      ultima: this.medicionesApi.getUltima(this.pacienteId),
+      ultima: this.medicionesApi.getUltima(this.pacienteId).pipe(catchError(() => of({ ok: true, mensaje: 'Sin mediciones', data: { _id: '', pacienteId: this.pacienteId, dispositivoId: '', fechaHora: '', pulsaciones: 0, spo2: 0, estadoSalud: 'REVISAR' as const } }))),
       mediciones: this.medicionesApi.getByPaciente(this.pacienteId, 7),
     }).subscribe({
       next: ({ resumen, tomasHoy, historial, medicamentos, ultima, mediciones }) => {

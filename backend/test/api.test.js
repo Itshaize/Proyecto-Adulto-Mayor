@@ -52,11 +52,27 @@ test('POST /api/pacientes registra al padre desde el administrador', async () =>
   const response = await request(app).post('/api/pacientes').set('Authorization', authorization).send({
     nombre: 'Roberto Andrade', edad: 74, fechaNacimiento: '1952-02-14',
     diagnosticos: ['Hipertensión'], telefonoContacto: '+593987654321',
-    dispositivoId: 'ESP32-001', activo: true
+    dispositivoId: 'ESP32-002', activo: true,
+    correoAcceso: 'roberto@salud.ec', passwordAcceso: 'Roberto123'
   });
   assert.equal(response.status, 201);
   assert.equal(response.body.ok, true);
   assert.equal(response.body.data.nombre, 'Roberto Andrade');
+  assert.equal(response.body.data.correoAcceso, 'roberto@salud.ec');
+
+  const loginAdulto = await request(app).post('/api/auth/login').send({ correo: 'roberto@salud.ec', password: 'Roberto123' });
+  assert.equal(loginAdulto.status, 200);
+  assert.equal(loginAdulto.body.data.usuario.pacienteId, response.body.data._id);
+});
+
+test('POST /api/pacientes limita cada administrador a 2 adultos', async () => {
+  const response = await request(app).post('/api/pacientes').set('Authorization', authorization).send({
+    nombre: 'Teresa Andrade', edad: 72, fechaNacimiento: '1954-03-12',
+    diagnosticos: [], telefonoContacto: '+593987654322', dispositivoId: 'ESP32-003', activo: true,
+    correoAcceso: 'teresa@salud.ec', passwordAcceso: 'Teresa123'
+  });
+  assert.equal(response.status, 409);
+  assert.match(response.body.mensaje, /máximo de 2/i);
 });
 
 test('POST /api/medicamentos/receta registra varios medicamentos juntos', async () => {
