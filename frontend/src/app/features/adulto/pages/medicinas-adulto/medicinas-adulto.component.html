@@ -1,0 +1,29 @@
+<header class="page-header"><div><p class="eyebrow">Mi tratamiento</p><h1 class="page-title">Mis medicinas</h1><p class="muted">Aquí puede revisar las pastillas que debe tomar hoy.</p></div><div class="header-actions"><span class="date">Hoy, 18 de mayo</span><a routerLink="/adulto/receta">Ver receta médica</a></div></header>
+
+@if (mensaje()) { <div class="toast" role="status"><span>✓</span> {{ mensaje() }}</div> }
+
+@if (data.proximaPastilla(); as proxima) {
+  <section class="next card"><div><h2><span>◷</span> Próxima pastilla</h2><h3>{{ proxima.nombre }} {{ proxima.concentracion }}</h3><p>{{ proxima.dosis }} · {{ proxima.indicaciones }}</p><strong>{{ proxima.horaProgramada }}</strong></div><button class="primary-button" type="button" (click)="pedirConfirmacion(proxima._id)">✓ Ya tomé mi pastilla</button></section>
+} @else { <section class="complete card"><span>✓</span><div><h2>¡Muy bien!</h2><p>Ya tomó todas sus medicinas de hoy.</p></div></section> }
+
+<section class="today">
+  <h2>Medicamentos de hoy</h2>
+  <div class="medicine-cards">
+    @for (med of data.medicamentos(); track med._id) {
+      <article class="medicine card" [class.medicine--done]="med.estado === 'TOMADA'">
+        <div class="medicine__icon" aria-hidden="true">◒</div>
+        <div class="medicine__info"><h3>{{ med.nombre }} <span>{{ med.concentracion }}</span></h3><p>{{ med.dosis }}</p><small>{{ med.indicaciones }}</small></div>
+        <div class="medicine__time"><strong>{{ med.horaProgramada }}</strong><span class="status" [class.status--pendiente]="med.estado === 'PENDIENTE'" [class.status--tomada]="med.estado === 'TOMADA'">{{ med.estado === 'TOMADA' ? '✓ Tomada' : '◷ Pendiente' }}</span></div>
+        @if (med.estado === 'PENDIENTE') { <button class="confirm-small" type="button" (click)="pedirConfirmacion(med._id)">Confirmar toma</button> }
+      </article>
+    }
+  </div>
+</section>
+
+<section class="history card"><h2>Últimos 7 días</h2><div class="history-list">@for (dia of data.historialTomas; track dia.fecha) { <div><span>{{ dia.fecha }}</span><div class="progress"><i [style.width.%]="dia.tomadas / dia.total * 100"></i></div><strong>{{ dia.tomadas }}/{{ dia.total }}</strong></div> }</div></section>
+
+@if (confirmarId()) {
+  <div class="dialog-backdrop" (click)="cancelar()">
+    <section class="dialog card" role="dialog" aria-modal="true" aria-labelledby="dialog-title" (click)="$event.stopPropagation()"><span class="dialog__icon">◒</span><h2 id="dialog-title">¿Ya tomó su pastilla?</h2><p>Confirme únicamente después de haberla tomado.</p><button class="primary-button" type="button" (click)="confirmar()">Sí, ya la tomé</button><button class="cancel" type="button" (click)="cancelar()">Todavía no</button></section>
+  </div>
+}

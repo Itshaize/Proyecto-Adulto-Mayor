@@ -1,0 +1,65 @@
+<div class="app-shell">
+  <aside class="sidebar" aria-label="Navegación principal">
+    <a class="brand" routerLink="/adulto/inicio" aria-label="Mi salud, ir al inicio">
+      <span class="brand__icon" aria-hidden="true">♥</span>
+      <span><strong>Mi salud</strong><small>Panel del adulto mayor</small></span>
+    </a>
+    <nav class="side-nav">
+      @for (item of menu; track item.ruta) {
+        <a [routerLink]="item.ruta" routerLinkActive="active">
+          <span class="nav-icon" aria-hidden="true">{{ item.icono }}</span>
+          <span>{{ item.texto }}</span>
+        </a>
+      }
+    </nav>
+    <button class="desktop-notification" type="button" (click)="alternarNotificaciones()" aria-haspopup="dialog">
+      <span aria-hidden="true">●</span><span><strong>Notificaciones</strong><small>1 aviso nuevo</small></span>
+    </button>
+    <div class="sidebar__support">
+      <span aria-hidden="true">🛡</span>
+      <p><strong>Estamos contigo</strong><small>Tus datos están protegidos</small></p>
+    </div>
+  </aside>
+
+  <section class="content-shell">
+    <header class="mobile-header">
+      <a class="brand" routerLink="/adulto/inicio">
+        <span class="brand__icon" aria-hidden="true">♥</span>
+        <span><strong>Mi salud</strong><small>Panel del adulto mayor</small></span>
+      </a>
+      <button class="notification" type="button" aria-label="Ver notificaciones" (click)="alternarNotificaciones()" aria-haspopup="dialog">♧<span></span></button>
+    </header>
+    <main><router-outlet /></main>
+  </section>
+
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    @for (item of menu; track item.ruta) {
+      <a [routerLink]="item.ruta" routerLinkActive="active">
+        <span class="nav-icon" aria-hidden="true">{{ item.icono }}</span>
+        <span>{{ item.texto }}</span>
+      </a>
+    }
+  </nav>
+
+  @if (notificacionesAbiertas()) {
+    <div class="notice-panel card" role="dialog" aria-label="Notificaciones">
+      <div class="notice-panel__header"><h2>Notificaciones</h2><button type="button" (click)="notificacionesAbiertas.set(false)" aria-label="Cerrar notificaciones">×</button></div>
+      <article><span class="notice-icon">▣</span><div><strong>Cita médica próxima</strong><p>Mañana 19 de mayo a las 09:00 AM.</p><small>Centro Médico Vida · Dr. Andrés Ruiz</small></div></article>
+      <a routerLink="/adulto/receta" (click)="notificacionesAbiertas.set(false)">Ver receta médica</a>
+    </div>
+  }
+
+  @if (avisoCitaVisible()) {
+    <div class="appointment-backdrop">
+      <section class="appointment-modal card" role="alertdialog" aria-modal="true" aria-labelledby="appointment-title">
+        <button class="modal-close" type="button" (click)="avisoCitaVisible.set(false)" aria-label="Cerrar aviso">×</button>
+        <div class="calendar-icon" aria-hidden="true">▣</div>
+        <p class="eyebrow">Recordatorio importante</p>
+        <h2 id="appointment-title">Tiene una cita mañana</h2>
+        <div class="appointment-data"><strong>19 de mayo · 09:00 AM</strong><span>Centro Médico Vida</span><span>Con el Dr. Andrés Ruiz</span></div>
+        <button class="primary-button" type="button" (click)="avisoCitaVisible.set(false)">Entendido</button>
+        <a routerLink="/adulto/receta" (click)="avisoCitaVisible.set(false)">Ver mi receta médica</a>
+      </section>
+    </div>
+  }
+</div>

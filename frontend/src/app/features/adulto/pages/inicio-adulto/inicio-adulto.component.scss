@@ -1,0 +1,41 @@
+.welcome { display:flex; align-items:center; justify-content:space-between; gap:24px; margin-bottom:18px; padding:20px 26px; }
+.welcome__person { display:flex; align-items:center; gap:20px; }
+.avatar { display:grid; place-items:center; width:78px; height:78px; overflow:hidden; background:linear-gradient(#dff2f6,#bcdbe3); border:4px solid #fff; border-radius:50%; box-shadow:0 4px 14px rgba(34,77,120,.15); font-size:52px; }
+.welcome h1 { margin:0 0 9px; font-size:28px; }
+.healthy { display:flex; align-items:center; gap:7px; margin:0; color:var(--success); font-size:16px; font-weight:700; }
+.healthy span { display:grid; place-items:center; width:18px; height:18px; color:#fff; background:var(--success); border-radius:50%; font-size:12px; }
+.dashboard-grid { display:grid; grid-template-columns:1fr 1.05fr; gap:18px; }
+.dashboard-grid > .card { padding:22px; }
+.next-pill { position:relative; min-height:250px; }
+.pill-content { display:flex; align-items:center; justify-content:space-between; }
+.pill-content h3 { margin:8px 0; font-size:27px; }
+.pill-content p { margin:0 0 18px; font-size:18px; }
+.time { font-size:31px; letter-spacing:-1px; }
+.pill-icon { display:grid; place-items:center; width:92px; height:92px; color:#079eaa; background:#e8f8fa; border-radius:50%; font-size:48px; transform:rotate(-35deg); }
+.next-pill > .status { position:absolute; right:20px; bottom:20px; }
+.all-done { padding:30px 0; color:var(--success); font-size:18px; font-weight:700; }
+.medicine-list { display:grid; }
+.medicine-row { display:grid; grid-template-columns:1fr 100px 100px; align-items:center; gap:10px; min-height:56px; border-bottom:1px solid var(--border); font-size:14px; }
+.medicine-row:last-child { border-bottom:0; }.medicine-row > span:not(.status) { color:var(--muted); }
+.vitals { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.vitals article { display:flex; align-items:center; justify-content:center; gap:14px; min-height:132px; padding:15px; border:1px solid var(--border); border-radius:13px; box-shadow:0 4px 12px rgba(34,77,120,.05); }
+.vitals p { margin:0 0 7px; font-size:14px; font-weight:600; }.vitals strong { display:block; font-size:32px; }.vitals strong small { font-size:18px; }.vitals div > span { color:var(--muted); font-size:13px; }
+.vital-icon { font-size:43px; }.vital-icon.oxygen { color:#2ca8e4; }.vital-icon.oxygen small { font-size:10px; }.vital-icon.heart { color:#13aaa5; }
+.chart-card { min-width:0; }
+.reminders { grid-column:1/-1; }
+.reminder-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.reminder-grid article { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px; padding:16px; border:1px solid var(--border); border-radius:12px; }
+.reminder-grid p { margin:5px 0 0; color:var(--muted); font-size:13px; }.reminder-grid article > span:last-child { color:var(--muted); font-size:30px; }
+.reminder-icon { color:var(--secondary); font-size:28px; }.reminder-icon.water { color:#28b7d2; }
+.history-link { display:flex; align-items:center; justify-content:center; gap:12px; min-height:58px; margin-top:18px; color:#1268aa; background:#f2f9fd; border:1px solid #cfe5f3; border-radius:13px; font-size:17px; font-weight:700; text-decoration:none; }
+.mobile-main-actions,.see-medicine{display:none}
+
+@media(max-width:950px){.dashboard-grid{grid-template-columns:1fr}.reminders{grid-column:auto}}
+@media(max-width:767px){
+  .welcome{align-items:stretch;padding:18px}.welcome app-boton-llamar-hijo{display:none}.avatar{width:72px;height:72px;font-size:46px}.welcome h1{font-size:25px}.welcome .eyebrow{display:none}.healthy{font-size:17px}
+  .mobile-main-actions{display:grid;gap:12px;margin:14px 0}.mobile-main-actions app-boton-llamar-hijo{display:block}.medicine-button{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;min-height:72px;padding:10px 16px;color:var(--text);background:#fff;border:2px solid #b9e0e5;border-radius:16px;text-decoration:none;box-shadow:0 4px 14px rgba(34,77,120,.08)}.medicine-button>span:first-child{display:grid;place-items:center;width:45px;height:45px;color:white;background:var(--primary);border-radius:50%;font-size:25px;transform:rotate(-35deg)}.medicine-button strong,.medicine-button small{display:block}.medicine-button strong{font-size:18px}.medicine-button small{margin-top:4px;color:var(--muted);font-size:14px}.medicine-button b{color:var(--primary);font-size:32px}
+  .dashboard-grid{gap:14px}.dashboard-grid>.card{padding:19px}.next-pill{min-height:275px;border:2px solid #f4d39d}.next-pill .section-title{font-size:20px}.pill-content h3{font-size:25px}.pill-content p{font-size:18px}.pill-icon{width:76px;height:76px;font-size:40px}.time{font-size:32px}.next-pill>.status{top:18px;right:16px;bottom:auto}.see-medicine{display:flex;align-items:center;justify-content:center;min-height:60px;margin-top:20px;color:#fff;background:var(--warning);border-radius:13px;font-size:17px;font-weight:800;text-decoration:none}
+  .medicines,.chart-card{display:none}
+  .medicine-row{grid-template-columns:1fr auto;gap:6px;padding:9px 0}.medicine-row strong{grid-column:1}.medicine-row>span:not(.status){grid-column:1}.medicine-row .status{grid-column:2;grid-row:1/3}.vitals{gap:8px}.vitals article{flex-direction:column;text-align:center;gap:7px;padding:12px 5px}.vitals strong{font-size:27px}.vital-icon{font-size:34px}.reminder-grid{grid-template-columns:1fr}.chart-card{overflow:hidden}
+  .health .section-title,.reminders .section-title{font-size:20px}.vitals article{min-height:165px}.vitals p{font-size:16px}.vitals div>span{font-size:15px}.reminder-grid article{min-height:82px}.reminder-grid strong{font-size:17px}.reminder-grid p{font-size:15px}.history-link{min-height:64px;font-size:18px}
+}

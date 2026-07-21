@@ -1,0 +1,49 @@
+.app-shell { min-height: 100vh; }
+.sidebar {
+  position: fixed; inset: 0 auto 0 0; z-index: 10;
+  display: flex; flex-direction: column;
+  width: 250px; padding: 38px 24px 24px;
+  background: rgba(255,255,255,.92); border-right: 1px solid var(--border);
+  backdrop-filter: blur(14px);
+}
+.brand { display: flex; align-items: center; gap: 13px; color: var(--text); text-decoration: none; }
+.brand__icon {
+  position: relative; display: grid; place-items: center; width: 46px; height: 42px;
+  color: white; background: linear-gradient(145deg, #159bd1, #038da2);
+  clip-path: polygon(50% 92%, 8% 50%, 8% 26%, 20% 10%, 39% 10%, 50% 23%, 61% 10%, 80% 10%, 92% 26%, 92% 50%);
+  font-size: 22px;
+}
+.brand strong, .brand small { display: block; }
+.brand strong { font-size: 19px; }
+.brand small { margin-top: 4px; color: var(--muted); font-size: 12px; }
+.side-nav { display: grid; gap: 10px; margin-top: 58px; }
+.side-nav a { display: flex; align-items: center; gap: 15px; min-height: 56px; padding: 0 17px; color: var(--text); border-radius: 12px; text-decoration: none; font-weight: 600; transition: .2s; }
+.side-nav a:hover { background: #eef9fb; }
+.side-nav a.active { color: white; background: linear-gradient(135deg, var(--primary), #08a9b0); box-shadow: 0 8px 20px rgba(15,143,165,.22); }
+.nav-icon { display: grid; place-items: center; width: 27px; height: 27px; font-size: 25px; font-weight: 500; line-height: 1; }
+.desktop-notification { display:flex;align-items:center;gap:12px;min-height:62px;margin-top:28px;padding:10px 14px;color:var(--text);background:#fff8ec;border:1px solid #f6deb8;border-radius:12px;text-align:left;cursor:pointer }.desktop-notification>span:first-child{color:var(--warning);font-size:19px}.desktop-notification strong,.desktop-notification small{display:block}.desktop-notification small{margin-top:3px;color:var(--muted)}
+.sidebar__support { display: flex; align-items: flex-start; gap: 10px; margin-top: auto; padding: 15px; background: #eff9fa; border-radius: 12px; color: var(--primary); }
+.sidebar__support p { margin: 0; font-size: 13px; }
+.sidebar__support small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.content-shell { min-height: 100vh; margin-left: 250px; }
+.content-shell main { width: min(1180px, 100%); margin: 0 auto; padding: 34px 38px 50px; }
+.mobile-header, .bottom-nav { display: none; }
+.notice-panel{position:fixed;top:25px;right:28px;z-index:45;width:min(390px,calc(100% - 28px));padding:20px}.notice-panel__header{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:13px}.notice-panel h2{margin:0;font-size:21px}.notice-panel__header button{width:42px;height:42px;color:var(--muted);background:transparent;border:0;font-size:30px;cursor:pointer}.notice-panel article{display:flex;gap:13px;padding:18px 0}.notice-panel article p{margin:5px 0;font-size:15px}.notice-panel article small{color:var(--muted)}.notice-icon{display:grid;place-items:center;flex:0 0 45px;height:45px;color:var(--warning);background:#fff4e2;border-radius:11px;font-size:24px}.notice-panel>a{display:flex;align-items:center;justify-content:center;min-height:50px;color:var(--primary);background:#eef9fa;border-radius:10px;font-weight:700;text-decoration:none}
+.appointment-backdrop{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:18px;background:rgba(19,43,70,.48);backdrop-filter:blur(5px)}.appointment-modal{position:relative;width:min(460px,100%);padding:30px;text-align:center}.modal-close{position:absolute;top:12px;right:12px;width:44px;height:44px;color:var(--muted);background:transparent;border:0;font-size:32px;cursor:pointer}.calendar-icon{display:grid;place-items:center;width:76px;height:76px;margin:0 auto 18px;color:#fff;background:linear-gradient(135deg,var(--warning),#f6bd54);border-radius:20px;font-size:38px}.appointment-modal h2{margin:5px 0 18px;font-size:27px}.appointment-data{display:grid;gap:7px;padding:18px;background:#f8fafc;border-radius:12px}.appointment-data strong{font-size:19px}.appointment-data span{color:var(--muted)}.appointment-modal .primary-button{width:100%;margin-top:20px}.appointment-modal>a{display:inline-flex;align-items:center;min-height:48px;margin-top:5px;color:var(--primary);font-weight:700;text-decoration:none}
+
+@media (max-width: 767px) {
+  .sidebar { display: none; }
+  .content-shell { margin-left: 0; padding-bottom: 98px; }
+  .content-shell main { padding: 18px 14px 28px; }
+  .mobile-header { position: sticky; top: 0; z-index: 9; display: flex; align-items: center; justify-content: space-between; min-height: 82px; padding: 12px 18px; background: rgba(255,255,255,.97); border-bottom: 1px solid var(--border); backdrop-filter: blur(12px); }
+  .brand__icon { width: 39px; height: 36px; font-size: 18px; }
+  .brand strong { font-size: 19px; }
+  .brand small { font-size: 12px; }
+  .notification { position: relative; width: 54px; height: 54px; color: var(--text); background: #eef9fa; border: 1px solid #c9e9ec; border-radius: 14px; font-size: 29px; }
+  .notification span { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--danger); border: 2px solid #fff; border-radius: 50%; }
+  .bottom-nav { position: fixed; inset: auto 0 0; z-index: 20; display: grid; grid-template-columns: repeat(4, 1fr); min-height: 90px; padding: 7px 4px max(7px, env(safe-area-inset-bottom)); background: rgba(255,255,255,.98); border-top: 1px solid var(--border); box-shadow: 0 -6px 22px rgba(34,77,120,.08); backdrop-filter: blur(12px); }
+  .bottom-nav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height:70px;color: var(--muted); border-radius:12px;text-decoration: none; font-size: 13px; font-weight: 700; }
+  .bottom-nav a.active { color: var(--primary); background:#eaf7f8; }
+  .bottom-nav .nav-icon { width: 30px; height: 30px; font-size: 28px; }
+  .notice-panel{top:88px;right:14px;padding:20px}.notice-panel article{padding:20px 0}.notice-panel article strong{font-size:18px}.notice-panel article p{font-size:17px;line-height:1.4}.notice-panel>a{min-height:60px;font-size:18px}.appointment-modal{padding:28px 20px}.appointment-modal h2{font-size:26px}.appointment-data{gap:10px;padding:20px}.appointment-data strong{font-size:20px}.appointment-data span{font-size:17px}.appointment-modal>a{min-height:56px;font-size:17px}
+}
