@@ -20,7 +20,8 @@
     "firebase-admin": "^14.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.2",
-    "pdfkit": "^0.19.1"
+    "pdfkit": "^0.19.1",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "supertest": "^7.1.4"

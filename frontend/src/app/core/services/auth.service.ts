@@ -13,6 +13,7 @@ export class AuthService {
   readonly usuarioActual = this.usuarioSignal.asReadonly();
   constructor(private readonly http: HttpClient) {}
   login(correo: string, password: string) { return this.http.post<ApiResponse<LoginData>>(`${environment.apiUrl}/auth/login`, { correo, password }).pipe(tap(({ data }) => { localStorage.setItem('salud_token', data.token); localStorage.setItem('salud_usuario', JSON.stringify(data.usuario)); this.usuarioSignal.set(data.usuario); })); }
+  registerAdmin(nombre: string, correo: string, telefono: string, password: string) { return this.http.post<ApiResponse<LoginData>>(`${environment.apiUrl}/auth/register`, { nombre, correo, telefono, password }).pipe(tap(({ data }) => { localStorage.setItem('salud_token', data.token); localStorage.setItem('salud_usuario', JSON.stringify(data.usuario)); this.usuarioSignal.set(data.usuario); })); }
   logout() { localStorage.removeItem('salud_token'); localStorage.removeItem('salud_usuario'); this.usuarioSignal.set(null); }
   cerrarSesion() { this.logout(); }
   isAuthenticated() { return Boolean(localStorage.getItem('salud_token')); }

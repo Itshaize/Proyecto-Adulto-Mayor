@@ -14,6 +14,50 @@ const binaryParser = (response, callback) => {
   response.on('end', () => callback(null, Buffer.concat(chunks)));
 };
 
+test('POST /api/auth/register crea una cuenta de administrador e inicia sesion', async () => {
+  const correo = 'nuevo.admin@kairos.test';
+  const response = await request(app).post('/api/auth/register').send({
+    nombre: 'Daniela Perez', correo, telefono: '+593990001122', password: 'Segura123'
+  });
+  assert.equal(response.status, 201);
+  assert.equal(response.body.ok, true);
+  assert.equal(response.body.data.usuario.rol, 'HIJO_ADMIN');
+  assert.equal(response.body.data.usuario.correo, correo);
+  assert.equal(typeof response.body.data.token, 'string');
+
+  const login = await request(app).post('/api/auth/login').send({ correo, password: 'Segura123' });
+  assert.equal(login.status, 200);
+  assert.equal(login.body.data.usuario.rol, 'HIJO_ADMIN');
+});
+
+test('POST /api/auth/register valida la clave y rechaza correos duplicados', async () => {
+  const invalid = await request(app).post('/api/auth/register').send({
+    nombre: 'Cuenta Invalida', correo: 'invalida@kairos.test', telefono: '0990001122', password: 'debil'
+  });
+  assert.equal(invalid.status, 422);
+
+  const duplicate = await request(app).post('/api/auth/register').send({
+    nombre: 'Daniela Repetida', correo: 'nuevo.admin@kairos.test', telefono: '0990001133', password: 'Segura123'
+  });
+  assert.equal(duplicate.status, 409);
+});
+
+test('Swagger publica y organiza el contrato completo de la API', async () => {
+  const specification = await request(app).get('/api-docs.json');
+  assert.equal(specification.status, 200);
+  assert.equal(specification.body.openapi, '3.0.3');
+  assert.ok(specification.body.paths['/api/auth/register'].post);
+  assert.ok(specification.body.paths['/api/pacientes/{id}/exportar'].get);
+  assert.ok(specification.body.components.securitySchemes.bearerAuth);
+  assert.ok(Object.keys(specification.body.paths).length >= 20);
+
+  const ui = await request(app).get('/api-docs/');
+  assert.equal(ui.status, 200);
+  assert.match(ui.headers['content-type'], /text\/html/);
+  assert.match(ui.text, /KAIRÓS · Documentación API/);
+  assert.match(ui.text, /id="swagger-ui"/);
+});
+
 test('GET /api/pacientes/:id/resumen respeta el contrato', async () => {
   const response = await request(app).get(`/api/pacientes/${demoStore.patientId}/resumen`).set('Authorization', authorization);
   assert.equal(response.status, 200);

@@ -75,6 +75,12 @@ try {
   const loginShot = await call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, fromSurface: true });
   await writeFile(path.join(output, 'login-desktop.png'), Buffer.from(loginShot.data, 'base64'));
 
+  await call('Page.navigate', { url: 'http://localhost:3000/registro' });
+  await waitForSelector('.register-page');
+  await sleep(500);
+  const registerShot = await call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, fromSurface: true });
+  await writeFile(path.join(output, 'registro-administrador.png'), Buffer.from(registerShot.data, 'base64'));
+
   const usuario = JSON.stringify({ _id: '66a000000000000000000010', nombre: 'Daniel Pérez', correo: 'daniel@salud.ec', rol: 'HIJO_ADMIN' });
   await call('Runtime.evaluate', { expression: `localStorage.setItem('salud_token',${JSON.stringify(loginResponse.data.token)});localStorage.setItem('salud_usuario',${JSON.stringify(usuario)});location.href='/'` });
   await waitForSelector('.dashboard');

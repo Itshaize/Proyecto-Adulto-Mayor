@@ -18,6 +18,8 @@ Administrador: daniel@salud.ec / Admin123
 Adulto mayor: carlos@salud.ec / Admin123
 ```
 
+También puedes abrir `/registro` para crear una cuenta nueva de administrador. La sesión se inicia automáticamente al terminar el registro.
+
 Si `MONGODB_URI` no está definido, la API arranca automáticamente en modo demostración con datos temporales. Todas las operaciones siguen pasando por `Angular → Express`; el frontend nunca accede directamente a MongoDB.
 
 > En carpetas sincronizadas con OneDrive la primera instalación de Angular puede tardar varios minutos por la cantidad de archivos. Las instalaciones posteriores usan el lock generado.
@@ -47,6 +49,7 @@ El backend también sirve el build ubicado en `frontend/dist` desde `http://loca
 ## Rutas implementadas
 
 - `/login`
+- `/registro`
 - `/admin/inicio`
 - `/admin/paciente`
 - `/admin/medicamentos`
@@ -67,6 +70,9 @@ Al registrar un adulto desde `/admin/paciente`, el administrador define su corre
 
 Todas las respuestas usan el contrato `{ ok, mensaje, data }` o `{ ok, mensaje, errores }`.
 
+La documentación interactiva completa está en `http://localhost:3000/api-docs`. Desde allí la profesora puede revisar los endpoints por módulo, ver ejemplos, descargar la especificación OpenAPI desde `/api-docs.json` y autorizar las rutas protegidas con un token JWT.
+
+- `POST /api/auth/register`
 - `POST /api/auth/login`
 - `GET|POST|PUT /api/pacientes`
 - `GET|POST|PUT|PATCH|DELETE /api/medicamentos`

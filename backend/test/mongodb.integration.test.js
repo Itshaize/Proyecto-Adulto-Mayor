@@ -2,6 +2,8 @@ import 'dotenv/config';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import mongoose from 'mongoose';
+import request from 'supertest';
+import { app } from '../src/app.js';
 import { Usuario } from '../src/models/Usuario.js';
 import { Paciente } from '../src/models/Paciente.js';
 import { Dispositivo } from '../src/models/Dispositivo.js';
@@ -20,10 +22,15 @@ test('MongoDB persiste relaciones y deduplica eventos de Firebase', { skip: !uri
     await mongoose.connection.dropDatabase();
     await Promise.all([Usuario.init(), Paciente.init(), Dispositivo.init(), Medicion.init()]);
 
-    const admin = await Usuario.create({
+    const registration = await request(app).post('/api/auth/register').send({
       nombre: 'Administrador Test', correo: 'admin.mongodb.test@kairos.local',
-      passwordHash: 'hash-solo-prueba', rol: 'HIJO_ADMIN', activo: true,
+      telefono: '+593990001122', password: 'MongoSeguro123',
     });
+    assert.equal(registration.status, 201);
+    assert.equal(registration.body.data.usuario.rol, 'HIJO_ADMIN');
+    const admin = await Usuario.findById(registration.body.data.usuario._id);
+    assert.ok(admin);
+    assert.notEqual(admin.passwordHash, 'MongoSeguro123');
     const paciente = await Paciente.create({
       nombre: 'Paciente Test', edad: 76, fechaNacimiento: '1950-01-01',
       diagnosticos: [], telefonoContacto: '+593000000000', hijoAdminId: admin._id,

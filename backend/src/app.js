@@ -11,12 +11,16 @@ import { tomaRoutes, medicionRoutes, dispositivoRoutes } from './routes/consulta
 import { integracionRoutes } from './routes/integracion.routes.js';
 import { requireAuth } from './middleware/auth.js';
 import { fail, ok } from './utils/http.js';
+import swaggerUi from 'swagger-ui-express';
+import { openApiDocument, swaggerOptions } from './docs/openapi.js';
 
 export const app = express();
 app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:4200' }));
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/api/salud', (_req, res) => ok(res, { servicio: 'API Salud y Medicación', modo: process.env.MONGODB_URI ? 'mongodb' : 'demostracion' }));
+app.get('/api-docs.json', (_req, res) => res.json(openApiDocument));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument, swaggerOptions));
 app.use('/api/auth', authRoutes);
 app.use('/api/pacientes', requireAuth, pacienteRoutes);
 app.use('/api/medicamentos', requireAuth, medicamentoRoutes);
