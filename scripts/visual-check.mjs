@@ -41,6 +41,14 @@ async function waitForSelector(selector) {
   const body = await call('Runtime.evaluate', { expression: 'document.body.innerText', returnByValue: true });
   throw new Error(`No apareció ${selector}. Contenido: ${body.result.value}`);
 }
+async function waitForText(selector, text) {
+  for (let attempt = 0; attempt < 60; attempt++) {
+    const result = await call('Runtime.evaluate', { expression: `document.querySelector(${JSON.stringify(selector)})?.textContent?.includes(${JSON.stringify(text)}) || false`, returnByValue: true });
+    if (result.result.value) return;
+    await sleep(250);
+  }
+  throw new Error(`No apareció el texto ${text} en ${selector}.`);
+}
 
 try {
   await waitForChrome();
@@ -59,6 +67,9 @@ try {
   });
   await call('Page.enable');
   await call('Runtime.enable');
+  const downloads = path.join(profile, 'downloads');
+  await mkdir(downloads, { recursive: true });
+  await call('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: downloads, eventsEnabled: true });
   await waitForSelector('.login-page');
 
   const loginShot = await call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, fromSurface: true });
@@ -70,6 +81,16 @@ try {
   await sleep(1200);
   const desktopShot = await call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, fromSurface: true });
   await writeFile(path.join(output, 'dashboard-desktop.png'), Buffer.from(desktopShot.data, 'base64'));
+
+  await call('Runtime.evaluate', { expression: `document.querySelector('a[href="/admin/historial"]')?.click()` });
+  await waitForSelector('.export-panel');
+  await sleep(500);
+  const exportShot = await call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, fromSurface: true });
+  await writeFile(path.join(output, 'historial-exportar-desktop.png'), Buffer.from(exportShot.data, 'base64'));
+  await call('Runtime.evaluate', { expression: `document.querySelectorAll('.export-button')[0]?.click()` });
+  await waitForText('.success-message', 'Excel');
+  await call('Runtime.evaluate', { expression: `document.querySelectorAll('.export-button')[1]?.click()` });
+  await waitForText('.success-message', 'PDF');
 
   await call('Runtime.evaluate', { expression: `document.querySelector('a[href="/admin/paciente"]')?.click()` });
   await waitForSelector('.patient-switcher');
@@ -114,6 +135,12 @@ try {
   await sleep(1200);
   const mobileShot = await call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, fromSurface: true });
   await writeFile(path.join(output, 'dashboard-mobile.png'), Buffer.from(mobileShot.data, 'base64'));
+
+  await call('Runtime.evaluate', { expression: `document.querySelector('a[href="/admin/historial"]')?.click()` });
+  await waitForSelector('.export-panel');
+  await sleep(500);
+  const exportMobileShot = await call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, fromSurface: true });
+  await writeFile(path.join(output, 'historial-exportar-mobile.png'), Buffer.from(exportMobileShot.data, 'base64'));
 
   const mobileLogout = await call('Runtime.evaluate', {
     expression: `(() => { const button = document.querySelector('.mobile-logout'); if (!button) return false; button.click(); return true; })()`,

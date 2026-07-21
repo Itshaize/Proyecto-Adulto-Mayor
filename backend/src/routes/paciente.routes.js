@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { listarPacientes, obtenerPaciente, crearPaciente, actualizarPaciente, obtenerResumen, obtenerResumenAdulto } from '../controllers/paciente.controller.js';
+import { listarPacientes, obtenerPaciente, crearPaciente, actualizarPaciente, obtenerResumen, obtenerResumenAdulto, exportarHistorial } from '../controllers/paciente.controller.js';
 import { validate } from '../middleware/validation.js';
 
 export const pacienteRoutes = Router();
@@ -18,6 +18,7 @@ const accessRules = [
 pacienteRoutes.get('/', listarPacientes);
 pacienteRoutes.get('/:id/resumen', obtenerResumen);
 pacienteRoutes.get('/:id/resumen-adulto', obtenerResumenAdulto);
+pacienteRoutes.get('/:id/exportar', exportarHistorial);
 pacienteRoutes.get('/:id', obtenerPaciente);
 pacienteRoutes.post('/', [...rules, ...accessRules], validate, crearPaciente);
 pacienteRoutes.put('/:id', [...rules, body('correoAcceso').trim().isEmail().withMessage('Ingresa un correo de acceso válido'), body('passwordAcceso').optional({ values: 'falsy' }).isLength({ min: 6 }).withMessage('La nueva contraseña debe tener al menos 6 caracteres')], validate, actualizarPaciente);

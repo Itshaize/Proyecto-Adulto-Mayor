@@ -26,10 +26,12 @@ import { Component, Input } from '@angular/core';
         @case ('logout') { <path d="M10 17l5-5-5-5M15 12H3M14 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5"/> }
         @case ('chevron') { <path d="m9 18 6-6-6-6"/> }
         @case ('filter') { <path d="M4 5h16M7 12h10M10 19h4"/> }
+        @case ('download') { <path d="M12 3v12M7 10l5 5 5-5M4 21h16"/> }
+        @case ('report') { <path d="M6 2h9l4 4v16H6Z"/><path d="M14 2v5h5M9 12h6M9 16h6"/> }
+        @case ('sheet') { <rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M10 9v12M4 15h16"/> }
         @case ('device') { <rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/> }
         @default { <circle cx="12" cy="12" r="9"/> }
       }
     </svg>`
 })
 export class IconComponent { @Input({ required: true }) name = ''; @Input() size = 22; }
-

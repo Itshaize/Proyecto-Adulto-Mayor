@@ -7,6 +7,7 @@ import { Paciente } from '../src/models/Paciente.js';
 import { Dispositivo } from '../src/models/Dispositivo.js';
 import { Medicion } from '../src/models/Medicion.js';
 import { persistFirebaseReading } from '../src/services/firebase-sync.service.js';
+import { buildExcelReport, buildPdfReport, getReportData } from '../src/services/reporte.service.js';
 
 const uri = process.env.MONGODB_TEST_URI || process.env.MONGODB_URI;
 const databaseName = 'kairos_integration_test';
@@ -46,6 +47,16 @@ test('MongoDB persiste relaciones y deduplica eventos de Firebase', { skip: !uri
     const device = await Dispositivo.findOne({ dispositivoId: 'ESP32-MONGO-TEST' }).lean();
     assert.equal(device.estado, 'CONECTADO');
     assert.equal(device.ultimaConexion.toISOString(), '2026-07-21T10:05:00.000Z');
+
+    const reportData = await getReportData({
+      pacienteId: String(paciente._id), adminId: String(admin._id),
+      seccion: 'todas', desde: '2026-07-21', hasta: '2026-07-21',
+    });
+    assert.equal(reportData.paciente.nombre, 'Paciente Test');
+    assert.equal(reportData.mediciones.length, 1);
+    const [excel, pdf] = await Promise.all([buildExcelReport(reportData), buildPdfReport(reportData)]);
+    assert.equal(excel.subarray(0, 2).toString(), 'PK');
+    assert.equal(pdf.subarray(0, 5).toString(), '%PDF-');
   } finally {
     await mongoose.connection.dropDatabase();
     await mongoose.disconnect();

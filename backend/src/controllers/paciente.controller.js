@@ -10,6 +10,7 @@ import { Usuario } from '../models/Usuario.js';
 import { demoStore } from '../data/demo-store.js';
 import { dateInTimeZone } from '../utils/date.js';
 import { ok, fail, handleError } from '../utils/http.js';
+import { buildExcelReport, buildPdfReport, getReportData, reportFilename, validateReportQuery } from '../services/reporte.service.js';
 
 const MAX_ADULTOS = 2;
 const usingDatabase = () => mongoose.connection.readyState === 1;
@@ -41,6 +42,24 @@ export async function obtenerPaciente(req, res) {
       : demoStore.pacientes.find((item) => item._id === req.params.id);
     if (!paciente) return fail(res, 'Paciente no encontrado', 404);
     return ok(res, await enriquecerPaciente(paciente));
+  } catch (error) { return handleError(res, error); }
+}
+
+export async function exportarHistorial(req, res) {
+  try {
+    if (!isAdmin(req)) return fail(res, 'Sólo el administrador puede exportar el historial', 403);
+    const filtros = validateReportQuery(req.query);
+    if (filtros.error) return fail(res, filtros.error, 422);
+    const data = await getReportData({ pacienteId: req.params.id, adminId: req.usuario.sub, ...filtros });
+    if (!data) return fail(res, 'Paciente no encontrado o no autorizado', 404);
+
+    const isExcel = filtros.formato === 'xlsx';
+    const file = isExcel ? await buildExcelReport(data) : await buildPdfReport(data);
+    const filename = reportFilename(data.paciente.nombre, filtros.formato);
+    res.setHeader('Content-Type', isExcel ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', file.length);
+    return res.status(200).send(file);
   } catch (error) { return handleError(res, error); }
 }
 
