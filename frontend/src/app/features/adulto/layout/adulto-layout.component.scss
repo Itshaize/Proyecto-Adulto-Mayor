@@ -28,7 +28,7 @@
 @keyframes notification-ring{0%,100%{opacity:0;transform:scale(.92)}35%{opacity:1}75%{opacity:0;transform:scale(1.14)}}
 @keyframes notification-icon{0%,100%{transform:rotate(0)}35%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}65%{transform:rotate(-8deg)}}
 .sidebar__support { display: flex; align-items: flex-start; gap: 10px; margin-top: auto; padding: 15px; background: #eff9fa; border-radius: 12px; color: var(--primary); }
-.logout{display:flex;align-items:center;justify-content:center;gap:9px;min-height:48px;margin-top:10px;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:11px;font-weight:700;cursor:pointer}.logout:hover{color:var(--danger);background:#fff5f5}.header-buttons{display:flex;align-items:center;gap:8px}.mobile-logout{display:none}
+.logout{display:flex;align-items:center;justify-content:center;gap:9px;min-height:50px;margin-top:10px;color:#a83d3d;background:#fff4f4;border:2px solid #efcaca;border-radius:11px;font-weight:800;cursor:pointer}.logout:hover{color:#fff;background:var(--danger);border-color:var(--danger)}.header-buttons{display:flex;align-items:center;gap:8px}.mobile-logout{display:none}
 .sidebar__support p { margin: 0; font-size: 13px; }
 .sidebar__support small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; line-height: 1.4; }
 .content-shell { min-height: 100vh; margin-left: 250px; }
@@ -47,7 +47,7 @@
   .brand strong { font-size: 19px; }
   .brand small { font-size: 12px; }
   .notification { position: relative; width: 54px; height: 54px; color: var(--text); background: #eef9fa; border: 1px solid #c9e9ec; border-radius: 14px; font-size: 29px; }
-  .mobile-logout{display:grid;place-items:center;width:54px;height:54px;color:var(--muted);background:#f5f7f9;border:1px solid var(--border);border-radius:14px;font-size:27px}
+  .mobile-logout{display:flex;align-items:center;justify-content:center;gap:4px;min-width:76px;height:54px;padding:0 10px;color:#a83d3d;background:#fff1f1;border:2px solid #e9b9b9;border-radius:14px;font-size:15px;font-weight:800;box-shadow:0 4px 12px rgba(180,63,63,.1)}.mobile-logout b{font-size:23px;line-height:1}.mobile-logout span{display:block}
   .notification span { position: absolute; top: 10px; right: 10px; width: 8px; height: 8px; background: var(--danger); border: 2px solid #fff; border-radius: 50%; }
   .bottom-nav { position: fixed; inset: auto 0 0; z-index: 20; display: grid; grid-template-columns: repeat(4, 1fr); min-height: 90px; padding: 7px 4px max(7px, env(safe-area-inset-bottom)); background: rgba(255,255,255,.98); border-top: 1px solid var(--border); box-shadow: 0 -6px 22px rgba(34,77,120,.08); backdrop-filter: blur(12px); }
   .bottom-nav a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-height:70px;color: var(--muted); border-radius:12px;text-decoration: none; font-size: 13px; font-weight: 700; }
@@ -55,4 +55,5 @@
   .bottom-nav .nav-icon { width: 30px; height: 30px; font-size: 28px; }
   .notice-panel{top:88px;right:14px;padding:20px}.notice-panel article{padding:20px 0}.notice-panel article strong{font-size:18px}.notice-panel article p{font-size:17px;line-height:1.4}.notice-panel>a{min-height:60px;font-size:18px}.appointment-modal{padding:28px 20px}.appointment-modal h2{font-size:26px}.appointment-data{gap:10px;padding:20px}.appointment-data strong{font-size:20px}.appointment-data span{font-size:17px}.appointment-modal>a{min-height:56px;font-size:17px}
 }
+@media(max-width:380px){.mobile-header{padding-inline:10px}.mobile-header .brand img{width:112px}.header-buttons{gap:5px}.notification{width:50px;height:52px}.mobile-logout{min-width:68px;padding:0 7px}}
 @media(prefers-reduced-motion:reduce){.notification-alert,.notification-alert::after,.desktop-notification>span:first-child{animation:none}.notification-alert{box-shadow:0 0 0 4px rgba(244,166,42,.25)}}

@@ -12,7 +12,7 @@
         @if (error()) { <div class="login-error" role="alert"><span>!</span>{{ error() }}</div> }
         <button class="primary-button submit" type="submit" [disabled]="enviando()">{{ enviando() ? 'Ingresando…' : 'Ingresar' }}</button>
       </form>
-      <div class="demo"><h3>Acceso rápido para pruebas</h3><p>Seleccione el tipo de usuario:</p><div><button type="button" (click)="usarAdulto()"><strong>Adulto mayor</strong><small>Carlos Pérez</small></button><button type="button" (click)="usarAdmin()"><strong>Administrador</strong><small>Daniel Pérez</small></button></div></div>
+      @if (modoDemo) { <div class="demo"><h3>Acceso rápido para pruebas</h3><p>Seleccione el tipo de usuario:</p><div><button type="button" (click)="usarAdulto()"><strong>Adulto mayor</strong><small>Carlos Pérez</small></button><button type="button" (click)="usarAdmin()"><strong>Administrador</strong><small>Daniel Pérez</small></button></div></div> }
       <p class="help">¿Necesita ayuda para ingresar?<br><strong>Llame a su familiar responsable.</strong></p>
     </div>
   </section>

@@ -7,9 +7,9 @@ export class AdultoDemoService {
   readonly telefonoHijo = '+593999999999';
 
   readonly medicamentos = signal<MedicamentoHoy[]>([
-    { _id: 'toma-1', nombre: 'Losartán', concentracion: '50 mg', dosis: '1 tableta', horaProgramada: '08:00 AM', indicaciones: 'Tomar después del desayuno', estado: 'PENDIENTE' },
-    { _id: 'toma-2', nombre: 'Metformina', concentracion: '850 mg', dosis: '1 tableta', horaProgramada: '01:00 PM', indicaciones: 'Tomar con el almuerzo', estado: 'TOMADA' },
-    { _id: 'toma-3', nombre: 'Atorvastatina', concentracion: '20 mg', dosis: '1 tableta', horaProgramada: '10:00 PM', indicaciones: 'Tomar antes de dormir', estado: 'TOMADA' },
+    { _id: 'toma-1', nombre: 'Losartán', concentracion: '50 mg', dosis: '1 tableta', horaProgramada: '08:00', indicaciones: 'Tomar después del desayuno', estado: 'PENDIENTE' },
+    { _id: 'toma-2', nombre: 'Metformina', concentracion: '850 mg', dosis: '1 tableta', horaProgramada: '13:00', indicaciones: 'Tomar con el almuerzo', estado: 'TOMADA' },
+    { _id: 'toma-3', nombre: 'Atorvastatina', concentracion: '20 mg', dosis: '1 tableta', horaProgramada: '22:00', indicaciones: 'Tomar antes de dormir', estado: 'TOMADA' },
   ]);
 
   readonly mediciones = signal<Medicion[]>([

@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
-    "check": "node --check src/server.js && node --check src/app.js && node --check src/config/database.js"
+    "check": "node --check src/server.js && node --check src/app.js && node --check src/config/database.js && node --check src/models/TomaMedicamento.js && node --check src/controllers/toma.controller.js && node --check src/controllers/adulto.controller.js && node --check src/routes/toma.routes.js && node --check src/routes/adulto.routes.js"
   },
   "engines": { "node": ">=20" },
   "dependencies": {

@@ -1,5 +1,7 @@
 # Guía de pruebas e integración — KAIRÓS
 
+> Para el procedimiento de unión del módulo y la lista exacta de código temporal, consulte también `INTEGRACION_MODULO_ADULTO.md`.
+
 ## 1. Estado actual
 
 El frontend Angular contiene:
@@ -7,13 +9,15 @@ El frontend Angular contiene:
 - Login compartido para `ADULTO_MAYOR` y `HIJO_ADMIN`.
 - Panel responsive y accesible del adulto mayor.
 - Inicio, Medicinas, Salud, Ayuda y Receta médica.
-- Confirmación simulada de tomas.
+- Confirmación simulada en modo de pruebas y persistente en modo de integración.
 - Notificación y ventana emergente de cita próxima.
 - Botón telefónico para llamar al hijo.
 - Servicios HTTP preparados para la API oficial.
 - Ruta temporal `/admin/inicio` para probar la redirección por rol.
+- Modelo Mongoose `TomaMedicamento` con colección `tomas_medicamentos`.
+- Endpoints reales de tomas y resumen del adulto.
 
-La estructura de conexión del backend a MongoDB está incluida. Los endpoints funcionales de dominio, Firebase y el panel administrativo real todavía no están incluidos en esta entrega.
+La conexión a MongoDB y los endpoints propios de Mauricio están incluidos: tomas de hoy, historial, confirmación y resumen del adulto. Los endpoints generales de medicamentos, mediciones, alertas, Firebase y el panel administrativo real pertenecen a otros módulos.
 
 ## 2. Cómo ejecutar
 
@@ -96,7 +100,7 @@ La sesión simulada se guarda en `localStorage` con la clave `kairos_sesion_demo
 
 ### Obligatorio
 
-1. Eliminar `AdultoDemoService` cuando todas las pantallas consuman la API.
+1. Eliminar `AdultoDemoService` cuando todos los endpoints reales estén disponibles y hayan sido validados con `demoMode: false`.
 2. Eliminar `usuariosDemo` y la espera artificial de `AuthService`.
 3. Eliminar los botones “Acceso rápido para pruebas” del login.
 4. Cambiar `localStorage` de demostración por el manejo acordado del JWT real.
@@ -164,6 +168,15 @@ PATCH /api/tomas/:id/confirmar
 GET   /api/mediciones/paciente/:pacienteId/ultima
 GET   /api/mediciones/paciente/:pacienteId?dias=7
 GET   /api/alertas/paciente/:pacienteId?soloNoLeidas=true
+```
+
+Implementados por Mauricio en esta entrega:
+
+```text
+GET   /api/pacientes/:id/resumen-adulto
+GET   /api/tomas/paciente/:pacienteId/hoy
+GET   /api/tomas/paciente/:pacienteId?dias=7
+PATCH /api/tomas/:id/confirmar
 ```
 
 La URL base actual está en `frontend/src/environments/environment.ts`:

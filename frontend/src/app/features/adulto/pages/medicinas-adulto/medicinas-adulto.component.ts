@@ -1,12 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AdultoDemoService } from '../../services/adulto-demo.service';
+import { AdultoDataService } from '../../services/adulto-data.service';
+import { BotonConfirmarTomaComponent } from '../../components/boton-confirmar-toma/boton-confirmar-toma.component';
 
-@Component({ selector: 'app-medicinas-adulto', imports: [RouterLink], templateUrl: './medicinas-adulto.component.html', styleUrl: './medicinas-adulto.component.scss' })
+@Component({ selector: 'app-medicinas-adulto', imports: [RouterLink, BotonConfirmarTomaComponent], templateUrl: './medicinas-adulto.component.html', styleUrl: './medicinas-adulto.component.scss' })
 export class MedicinasAdultoComponent {
-  readonly data = inject(AdultoDemoService);
+  readonly data = inject(AdultoDataService);
   readonly confirmarId = signal<string | null>(null);
   readonly mensaje = signal('');
+  estadoTomaTexto(estado: string) { return { PENDIENTE: '◷ Pendiente', TOMADA: '✓ Tomada', OMITIDA: '! Omitida' }[estado] ?? estado; }
 
   pedirConfirmacion(id: string) { this.confirmarId.set(id); }
   cancelar() { this.confirmarId.set(null); }

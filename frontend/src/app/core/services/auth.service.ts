@@ -1,10 +1,15 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { UsuarioSesion } from '../models/usuario.model';
+import { ApiResponse } from '../models/api-response.model';
+import { environment } from '../../../environments/environment';
 
 interface CredencialesDemo { correo: string; password: string; usuario: UsuarioSesion; }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly http = inject(HttpClient);
   private readonly storageKey = 'kairos_sesion_demo';
   private readonly sesion = signal<UsuarioSesion | null>(this.leerSesion());
   readonly usuarioActual = this.sesion.asReadonly();
@@ -16,6 +21,13 @@ export class AuthService {
   ];
 
   async iniciarSesion(correo: string, password: string): Promise<UsuarioSesion> {
+    if (!environment.demoMode) {
+      const respuesta = await firstValueFrom(this.http.post<ApiResponse<{ token: string; usuario: Omit<UsuarioSesion, 'token'> }>>(`${environment.apiUrl}/auth/login`, { correo: correo.trim().toLowerCase(), password }));
+      const usuario = { ...respuesta.data.usuario, token: respuesta.data.token };
+      this.sesion.set(usuario);
+      localStorage.setItem(this.storageKey, JSON.stringify(usuario));
+      return usuario;
+    }
     await new Promise((resolve) => setTimeout(resolve, 550));
     const registro = this.usuariosDemo.find((item) => item.correo === correo.trim().toLowerCase() && item.password === password);
     if (!registro) throw new Error('El correo o la contraseña no son correctos. Inténtelo nuevamente.');

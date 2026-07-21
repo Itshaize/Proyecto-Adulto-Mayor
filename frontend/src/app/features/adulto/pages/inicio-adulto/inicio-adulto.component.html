@@ -1,5 +1,5 @@
 <section class="welcome card">
-  <div class="welcome__person"><div class="avatar" aria-hidden="true">👴🏻</div><div><p class="eyebrow">Buenos días</p><h1>Hola, Papá</h1><p class="healthy"><span>✓</span> Todo en orden</p></div></div>
+  <app-saludo-adulto [estado]="data.estadoGeneral()" />
   <app-boton-llamar-hijo [telefono]="data.telefonoHijo" />
 </section>
 
@@ -9,44 +9,16 @@
 </section>
 
 <div class="dashboard-grid">
-  <section class="next-pill card">
-    <h2 class="section-title"><span class="accent">◷</span> Próxima pastilla</h2>
-    @if (data.proximaPastilla(); as pastilla) {
-      <div class="pill-content"><div><h3>{{ pastilla.nombre }} {{ pastilla.concentracion }}</h3><p>{{ pastilla.dosis }}</p><strong class="time">{{ pastilla.horaProgramada }}</strong></div><div class="pill-icon" aria-hidden="true">◒</div></div>
-      <span class="status status--pendiente">Pendiente</span>
-      <a class="see-medicine" routerLink="/adulto/medicinas">Ver medicamento y confirmar</a>
-    } @else { <p class="all-done">✓ Todas las medicinas de hoy están tomadas.</p> }
-  </section>
-
-  <section class="medicines card">
-    <h2 class="section-title">Medicamentos de hoy</h2>
-    <div class="medicine-list">
-      @for (med of data.medicamentos(); track med._id) {
-        <div class="medicine-row"><strong>{{ med.nombre }} {{ med.concentracion }}</strong><span>{{ med.horaProgramada }}</span><span class="status" [class.status--pendiente]="med.estado === 'PENDIENTE'" [class.status--tomada]="med.estado === 'TOMADA'">{{ med.estado === 'TOMADA' ? 'Tomada' : 'Pendiente' }}</span></div>
-      }
-    </div>
-  </section>
-
-  <section class="health card">
-    <h2 class="section-title">Salud actual</h2>
-    <div class="vitals">
-      <article><span class="vital-icon oxygen">◉<small>O₂</small></span><div><p>Oxígeno</p><strong>{{ data.ultimaMedicion().spo2 }}<small>%</small></strong><span>Normal</span></div></article>
-      <article><span class="vital-icon heart">♥</span><div><p>Pulsaciones</p><strong>{{ data.ultimaMedicion().pulsaciones }}<small> lpm</small></strong><span>Normal</span></div></article>
-    </div>
-  </section>
+  <app-proxima-pastilla [pastilla]="data.proximaPastilla()" />
+  <app-lista-medicamentos-hoy [medicamentos]="data.medicamentos()" />
+  <app-salud-actual [medicion]="data.ultimaMedicion()" />
 
   <section class="chart-card card">
     <h2 class="section-title">Pulsaciones recientes</h2>
-    <app-grafico-simple [valores]="pulsaciones" [etiquetas]="fechas" etiqueta="Pulsaciones recientes" />
+    <app-grafico-pulsaciones-simple [valores]="pulsaciones" [etiquetas]="fechas" />
   </section>
 
-  <section class="reminders card">
-    <h2 class="section-title"><span class="accent">♧</span> Recordatorios</h2>
-    <div class="reminder-grid">
-      <article><span class="reminder-icon">▣</span><div><strong>Cita médica</strong><p>Mañana 19 de mayo — 09:00 AM</p></div><span>›</span></article>
-      <article><span class="reminder-icon water">▱</span><div><strong>Tomar agua</strong><p>Bebe un vaso de agua</p></div><span>›</span></article>
-    </div>
-  </section>
+  <app-recordatorios />
 </div>
 
 <a class="history-link" routerLink="/adulto/salud"><span>▥</span> Ver historial</a>
