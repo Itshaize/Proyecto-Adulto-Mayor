@@ -1,6 +1,15 @@
+declare global {
+  interface Window {
+    __KAIROS_CONFIG__?: { apiUrl?: string };
+  }
+}
+
+const runtimeApiUrl = window.__KAIROS_CONFIG__?.apiUrl?.trim().replace(/\/+$/, '');
+
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3000/api',
+  // config.js permite cambiar de servidor sin volver a compilar Angular.
+  apiUrl: runtimeApiUrl || 'http://localhost:3000/api',
   firebase: {
     apiKey: 'AIzaSyAqWkm7LhEhD3gAMO-J-g2qGv06KKjTqTA',
     authDomain: 'prueba-bca78.firebaseapp.com',

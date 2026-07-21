@@ -10,6 +10,7 @@
     "test": "npm test --prefix backend",
     "test:mongodb": "npm run test:mongodb --prefix backend",
     "verify": "npm test --prefix backend && npm run build --prefix frontend -- --progress=false",
+    "check:deployment": "node scripts/check-deployment.mjs",
     "visual:check": "node scripts/visual-check.mjs"
   },
   "devDependencies": {

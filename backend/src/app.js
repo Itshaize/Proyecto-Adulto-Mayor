@@ -15,7 +15,20 @@ import swaggerUi from 'swagger-ui-express';
 import { openApiDocument, swaggerOptions } from './docs/openapi.js';
 
 export const app = express();
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:4200' }));
+
+const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || 'http://localhost:4200')
+  .split(',')
+  .map((origin) => origin.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+const allowAllOrigins = allowedOrigins.includes('*');
+
+app.use(cors({
+  origin(origin, callback) {
+    // Las peticiones sin Origin (curl, Swagger, monitoreo) no son peticiones CORS.
+    if (!origin || allowAllOrigins || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(null, false);
+  }
+}));
 app.use(express.json({ limit: '1mb' }));
 
 app.get('/api/salud', (_req, res) => ok(res, { servicio: 'API Salud y Medicación', modo: process.env.MONGODB_URI ? 'mongodb' : 'demostracion' }));

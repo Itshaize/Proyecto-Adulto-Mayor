@@ -4,11 +4,12 @@ import { connectDatabase } from './config/database.js';
 import { startFirebaseSync, stopFirebaseSync } from './services/firebase-sync.service.js';
 
 const port = Number(process.env.PORT || 3000);
+const host = process.env.HOST || '0.0.0.0';
 
 connectDatabase(process.env.MONGODB_URI)
   .then(async (mongoConnected) => {
     await startFirebaseSync({ mongoConnected });
-    const server = app.listen(port, () => console.info(`[API] http://localhost:${port}/api/salud`));
+    const server = app.listen(port, host, () => console.info(`[API] escuchando en ${host}:${port}/api/salud`));
     const shutdown = () => {
       stopFirebaseSync();
       server.close(() => process.exit(0));

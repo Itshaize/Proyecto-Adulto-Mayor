@@ -22,7 +22,8 @@ const server = http.createServer(async (request, response) => {
       filePath = path.join(root, 'index.html');
     }
     const body = await readFile(filePath);
-    response.writeHead(200, { 'content-type': mimeTypes[path.extname(filePath)] || 'application/octet-stream', 'cache-control': filePath.endsWith('index.html') ? 'no-cache' : 'public, max-age=3600' });
+    const noCache = filePath.endsWith('index.html') || filePath.endsWith('config.js');
+    response.writeHead(200, { 'content-type': mimeTypes[path.extname(filePath)] || 'application/octet-stream', 'cache-control': noCache ? 'no-store' : 'public, max-age=3600' });
     response.end(body);
   } catch (error) {
     response.writeHead(500, { 'content-type': 'text/plain; charset=utf-8' });

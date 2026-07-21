@@ -1,0 +1,23 @@
+server {
+    listen 80;
+    server_name FRONTEND_HOST_VM;
+    root /var/www/kairos;
+    index index.html;
+
+    # config.js cambia la API sin recompilar; nunca debe quedar cacheado.
+    location = /config.js {
+        add_header Cache-Control "no-store, no-cache, must-revalidate";
+        expires -1;
+        try_files $uri =404;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~* \.(?:css|js|svg|png|jpg|jpeg|webp|woff2)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+}

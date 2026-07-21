@@ -14,6 +14,14 @@ const binaryParser = (response, callback) => {
   response.on('end', () => callback(null, Buffer.concat(chunks)));
 };
 
+test('CORS permite el frontend configurado y no autoriza otros origenes', async () => {
+  const allowed = await request(app).get('/api/salud').set('Origin', 'http://localhost:4200');
+  assert.equal(allowed.headers['access-control-allow-origin'], 'http://localhost:4200');
+
+  const blocked = await request(app).get('/api/salud').set('Origin', 'https://sitio-no-autorizado.example');
+  assert.equal(blocked.headers['access-control-allow-origin'], undefined);
+});
+
 test('POST /api/auth/register crea una cuenta de administrador e inicia sesion', async () => {
   const correo = 'nuevo.admin@kairos.test';
   const response = await request(app).post('/api/auth/register').send({

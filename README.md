@@ -46,6 +46,10 @@ npm run visual:check # capturas headless; requiere Chrome y API activa
 
 El backend también sirve el build ubicado en `frontend/dist` desde `http://localhost:3000`, incluyendo fallback para refrescar rutas Angular.
 
+## Backend en AWS y frontend en otra maquina
+
+Sigue [DESPLIEGUE_AWS_VM.md](./DESPLIEGUE_AWS_VM.md). La URL de la API puede configurarse en `frontend/public/config.js` sin cambiar los servicios Angular ni recompilar la aplicacion.
+
 ## Rutas implementadas
 
 - `/login`

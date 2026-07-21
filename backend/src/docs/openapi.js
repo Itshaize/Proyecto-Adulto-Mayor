@@ -1,4 +1,5 @@
 const bearer = [{ bearerAuth: [] }];
+const publicApiUrl = (process.env.PUBLIC_API_URL || 'http://localhost:3000').replace(/\/$/, '');
 const idParameter = (name = 'id', description = 'Identificador MongoDB del recurso') => ({ name, in: 'path', required: true, description, schema: { type: 'string' } });
 const patientParameter = idParameter('pacienteId', 'Identificador del adulto mayor');
 const jsonBody = (schema, example) => ({ required: true, content: { 'application/json': { schema, ...(example ? { example } : {}) } } });
@@ -16,7 +17,7 @@ export const openApiDocument = {
     description: 'API REST para administrar adultos mayores, medicamentos, tomas, mediciones del ESP32/MAX30102, alertas, exportaciones y el puente Firebase → MongoDB. Usa **POST /api/auth/login** o **POST /api/auth/register**, copia el token y presiona **Authorize**.',
     contact: { name: 'Equipo KAIRÓS', url: 'https://github.com/Itshaize/Proyecto-Adulto-Mayor' },
   },
-  servers: [{ url: 'http://localhost:3000', description: 'Servidor local' }],
+  servers: [{ url: publicApiUrl, description: process.env.PUBLIC_API_URL ? 'Servidor AWS' : 'Servidor local' }],
   tags: [
     { name: 'Sistema', description: 'Salud general y documentación de la API' },
     { name: 'Autenticación', description: 'Registro de administradores e inicio de sesión por roles' },
