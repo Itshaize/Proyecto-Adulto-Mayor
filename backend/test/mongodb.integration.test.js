@@ -31,15 +31,19 @@ test('MongoDB persiste relaciones y deduplica eventos de Firebase', { skip: !uri
     const admin = await Usuario.findById(registration.body.data.usuario._id);
     assert.ok(admin);
     assert.notEqual(admin.passwordHash, 'MongoSeguro123');
-    const paciente = await Paciente.create({
-      nombre: 'Paciente Test', edad: 76, fechaNacimiento: '1950-01-01',
-      diagnosticos: [], telefonoContacto: '+593000000000', hijoAdminId: admin._id,
-      dispositivoId: 'ESP32-MONGO-TEST', activo: true,
-    });
-    await Dispositivo.create({
-      dispositivoId: 'ESP32-MONGO-TEST', pacienteId: paciente._id,
-      estado: 'DESCONECTADO', ultimaConexion: new Date('2026-07-21T10:00:00.000Z'),
-    });
+    const patientRegistration = await request(app).post('/api/pacientes')
+      .set('Authorization', `Bearer ${registration.body.data.token}`)
+      .send({
+        nombre: 'Paciente Test', edad: 76, fechaNacimiento: '1950-01-01',
+        diagnosticos: [], telefonoContacto: '+593000000000', dispositivoId: 'esp32-mongo-test',
+        activo: true, correoAcceso: 'adulto.mongodb.test@kairos.local', passwordAcceso: 'AdultoSeguro123',
+      });
+    assert.equal(patientRegistration.status, 201);
+    const paciente = await Paciente.findById(patientRegistration.body.data._id);
+    const linkedDevice = await Dispositivo.findOne({ dispositivoId: 'ESP32-MONGO-TEST' });
+    assert.ok(linkedDevice);
+    assert.equal(String(linkedDevice.pacienteId), String(paciente._id));
+    assert.equal(linkedDevice.estado, 'DESCONECTADO');
 
     const payload = { dispositivoId: 'ESP32-MONGO-TEST', pulsaciones: 74, spo2: 97, timestamp: '2026-07-21T10:05:00.000Z' };
     const first = await persistFirebaseReading(payload, 'lecturas/mongo-test-1');

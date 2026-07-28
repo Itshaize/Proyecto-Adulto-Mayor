@@ -9,7 +9,7 @@ const rules = [
   body('edad').isInt({ min: 1 }).withMessage('La edad debe ser mayor a cero'),
   body('fechaNacimiento').isISO8601().withMessage('La fecha de nacimiento no es válida'),
   body('telefonoContacto').trim().notEmpty().withMessage('El teléfono es obligatorio'),
-  body('dispositivoId').trim().notEmpty().withMessage('El dispositivo es obligatorio')
+  body('dispositivoId').trim().toUpperCase().matches(/^ESP32-[A-Z0-9-]{3,24}$/).withMessage('Usa el código impreso en el equipo, por ejemplo ESP32-001')
 ];
 const accessRules = [
   body('correoAcceso').trim().isEmail().withMessage('Ingresa un correo de acceso válido'),

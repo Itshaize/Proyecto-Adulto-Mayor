@@ -23,6 +23,8 @@ const dateKey = (daysAgo = 0) => {
   return dateInTimeZone(date);
 };
 
+const dispositivoInicial = { _id: 'd1', dispositivoId: 'ESP32-001', pacienteId: patientId, estado: 'CONECTADO', ultimaConexion: isoAt(0, 9, 20), versionFirmware: '1.0.0' };
+
 export const demoStore = {
   patientId,
   paciente: pacienteInicial,
@@ -56,5 +58,6 @@ export const demoStore = {
     { _id: 'a3', pacienteId: patientId, tipo: 'ULTIMA_CONEXION_INUSUAL', titulo: 'Última conexión inusual', mensaje: 'El dispositivo tardó más de lo esperado', nivel: 'INFORMATIVA', leida: true, fechaHora: isoAt(0, 9, 20) },
     { _id: 'a4', pacienteId: patientId, tipo: 'PASTILLA_PENDIENTE', titulo: 'Pastilla pendiente', mensaje: 'Atorvastatina 20 mg — 22:00', nivel: 'ADVERTENCIA', leida: false, fechaHora: isoAt(0, 19, 55) }
   ],
-  dispositivo: { _id: 'd1', dispositivoId: 'ESP32-001', pacienteId: patientId, estado: 'CONECTADO', ultimaConexion: isoAt(0, 9, 20), versionFirmware: '1.0.0' }
+  dispositivo: dispositivoInicial,
+  dispositivos: [dispositivoInicial]
 };

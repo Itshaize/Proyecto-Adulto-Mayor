@@ -7,6 +7,17 @@ import { dateDaysAgo, dateInTimeZone } from '../utils/date.js';
 import { ok, fail, handleError } from '../utils/http.js';
 
 const usingDatabase = () => mongoose.connection.readyState === 1;
+const DEVICE_OFFLINE_AFTER_MS = Number(process.env.DEVICE_OFFLINE_AFTER_MS || 120000);
+
+function estadoActual(dispositivo) {
+  if (!dispositivo) return null;
+  const plain = typeof dispositivo.toObject === 'function' ? dispositivo.toObject() : { ...dispositivo };
+  const ultimaConexion = plain.ultimaConexion ? new Date(plain.ultimaConexion).getTime() : 0;
+  if (plain.estado === 'CONECTADO' && (!ultimaConexion || Date.now() - ultimaConexion > DEVICE_OFFLINE_AFTER_MS)) {
+    plain.estado = 'DESCONECTADO';
+  }
+  return plain;
+}
 
 function enriquecerToma(toma) {
   const objeto = typeof toma?.toObject === 'function' ? toma.toObject() : { ...toma };
@@ -121,8 +132,8 @@ export async function estadoDispositivo(req, res) {
   try {
     const dispositivo = usingDatabase()
       ? await Dispositivo.findOne({ dispositivoId: req.params.dispositivoId }).lean()
-      : demoStore.dispositivo.dispositivoId === req.params.dispositivoId ? demoStore.dispositivo : null;
+      : demoStore.dispositivos.find((item) => item.dispositivoId === req.params.dispositivoId.toUpperCase());
     if (!dispositivo) return fail(res, 'Dispositivo no encontrado', 404);
-    return ok(res, dispositivo);
+    return ok(res, estadoActual(dispositivo));
   } catch (error) { return handleError(res, error); }
 }

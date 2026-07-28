@@ -15,6 +15,15 @@ import { buildExcelReport, buildPdfReport, getReportData, reportFilename, valida
 const MAX_ADULTOS = 2;
 const usingDatabase = () => mongoose.connection.readyState === 1;
 const isAdmin = (req) => req.usuario?.rol === 'HIJO_ADMIN';
+const normalizeDeviceId = (value) => String(value || '').trim().toUpperCase();
+
+async function dispositivoOcupado(dispositivoId, pacienteId = null) {
+  if (usingDatabase()) {
+    return Boolean(await Dispositivo.exists({ dispositivoId, ...(pacienteId ? { pacienteId: { $ne: pacienteId } } : {}) })
+      || await Paciente.exists({ dispositivoId, ...(pacienteId ? { _id: { $ne: pacienteId } } : {}) }));
+  }
+  return demoStore.pacientes.some((item) => item.dispositivoId === dispositivoId && (!pacienteId || item._id !== pacienteId));
+}
 
 async function enriquecerPaciente(paciente) {
   if (!paciente) return null;
@@ -77,13 +86,18 @@ export async function crearPaciente(req, res) {
       : demoStore.usuarios.some((item) => item.correo === correo);
     if (correoExiste) return fail(res, 'Ese correo ya está asociado a una cuenta', 409);
 
-    const { correoAcceso, passwordAcceso, ...datosPaciente } = req.body;
+    const { correoAcceso, passwordAcceso, ...datosRecibidos } = req.body;
+    const datosPaciente = { ...datosRecibidos, dispositivoId: normalizeDeviceId(datosRecibidos.dispositivoId) };
+    if (await dispositivoOcupado(datosPaciente.dispositivoId)) return fail(res, 'Ese dispositivo ya está vinculado a otro adulto', 409);
     if (usingDatabase()) {
       const usuario = await Usuario.create({ nombre: datosPaciente.nombre, correo, passwordHash: await bcrypt.hash(passwordAcceso, 12), rol: 'ADULTO_MAYOR', telefono: datosPaciente.telefonoContacto, activo: true });
+      let paciente;
       try {
-        const paciente = await Paciente.create({ ...datosPaciente, hijoAdminId: req.usuario.sub, usuarioAdultoId: usuario._id });
+        paciente = await Paciente.create({ ...datosPaciente, hijoAdminId: req.usuario.sub, usuarioAdultoId: usuario._id });
+        await Dispositivo.create({ dispositivoId: datosPaciente.dispositivoId, pacienteId: paciente._id, estado: 'DESCONECTADO' });
         return ok(res, await enriquecerPaciente(paciente), 'Adulto registrado y acceso creado correctamente', 201);
       } catch (error) {
+        if (paciente) await Paciente.findByIdAndDelete(paciente._id);
         await Usuario.findByIdAndDelete(usuario._id);
         throw error;
       }
@@ -95,36 +109,54 @@ export async function crearPaciente(req, res) {
     const paciente = { ...datosPaciente, _id: pacienteId, hijoAdminId: req.usuario.sub, usuarioAdultoId: usuarioId };
     demoStore.usuarios.push(usuario);
     demoStore.pacientes.push(paciente);
+    demoStore.dispositivos.push({ _id: new mongoose.Types.ObjectId().toString(), dispositivoId: datosPaciente.dispositivoId, pacienteId, estado: 'DESCONECTADO', ultimaConexion: null, versionFirmware: 'Pendiente' });
     return ok(res, { ...paciente, correoAcceso: correo }, 'Adulto registrado y acceso creado correctamente', 201);
-  } catch (error) { return handleError(res, error); }
+  } catch (error) {
+    if (error?.code === 11000) return fail(res, 'Ese correo o dispositivo ya está vinculado', 409);
+    return handleError(res, error);
+  }
 }
 
 export async function actualizarPaciente(req, res) {
   try {
     if (!isAdmin(req)) return fail(res, 'Sólo el administrador puede actualizar adultos', 403);
-    const { correoAcceso, passwordAcceso, ...datosPaciente } = req.body;
+    const { correoAcceso, passwordAcceso, ...datosRecibidos } = req.body;
+    const datosPaciente = { ...datosRecibidos, dispositivoId: normalizeDeviceId(datosRecibidos.dispositivoId) };
     const correo = correoAcceso.trim().toLowerCase();
     if (usingDatabase()) {
       const pacienteActual = await Paciente.findOne({ _id: req.params.id, hijoAdminId: req.usuario.sub });
       if (!pacienteActual) return fail(res, 'Paciente no encontrado', 404);
+      if (await dispositivoOcupado(datosPaciente.dispositivoId, pacienteActual._id)) return fail(res, 'Ese dispositivo ya está vinculado a otro adulto', 409);
       const duplicado = await Usuario.exists({ correo, _id: { $ne: pacienteActual.usuarioAdultoId } });
       if (duplicado) return fail(res, 'Ese correo ya está asociado a una cuenta', 409);
       const cambiosUsuario = { nombre: datosPaciente.nombre, correo, telefono: datosPaciente.telefonoContacto, activo: datosPaciente.activo };
       if (passwordAcceso) cambiosUsuario.passwordHash = await bcrypt.hash(passwordAcceso, 12);
       await Usuario.findByIdAndUpdate(pacienteActual.usuarioAdultoId, cambiosUsuario, { runValidators: true });
+      await Dispositivo.findOneAndUpdate(
+        { pacienteId: pacienteActual._id },
+        { dispositivoId: datosPaciente.dispositivoId, pacienteId: pacienteActual._id, ...(pacienteActual.dispositivoId !== datosPaciente.dispositivoId ? { estado: 'DESCONECTADO', ultimaConexion: null, versionFirmware: 'Pendiente' } : {}) },
+        { upsert: true, new: true, runValidators: true },
+      );
       const paciente = await Paciente.findByIdAndUpdate(req.params.id, datosPaciente, { new: true, runValidators: true });
       return ok(res, await enriquecerPaciente(paciente), 'Datos y acceso del adulto actualizados');
     }
 
     const paciente = demoStore.pacientes.find((item) => item._id === req.params.id && String(item.hijoAdminId) === String(req.usuario.sub));
     if (!paciente) return fail(res, 'Paciente no encontrado', 404);
+    if (await dispositivoOcupado(datosPaciente.dispositivoId, paciente._id)) return fail(res, 'Ese dispositivo ya está vinculado a otro adulto', 409);
     const usuario = demoStore.usuarios.find((item) => item._id === paciente.usuarioAdultoId);
     const duplicado = demoStore.usuarios.some((item) => item.correo === correo && item._id !== usuario?._id);
     if (duplicado) return fail(res, 'Ese correo ya está asociado a una cuenta', 409);
+    const dispositivoAnterior = paciente.dispositivoId;
     Object.assign(paciente, datosPaciente);
+    const dispositivo = demoStore.dispositivos.find((item) => item.pacienteId === paciente._id);
+    if (dispositivo) Object.assign(dispositivo, { dispositivoId: datosPaciente.dispositivoId, ...(dispositivoAnterior !== datosPaciente.dispositivoId ? { estado: 'DESCONECTADO', ultimaConexion: null, versionFirmware: 'Pendiente' } : {}) });
     if (usuario) Object.assign(usuario, { nombre: datosPaciente.nombre, correo, telefono: datosPaciente.telefonoContacto, activo: datosPaciente.activo, ...(passwordAcceso ? { password: passwordAcceso } : {}) });
     return ok(res, { ...paciente, correoAcceso: correo }, 'Datos y acceso del adulto actualizados');
-  } catch (error) { return handleError(res, error); }
+  } catch (error) {
+    if (error?.code === 11000) return fail(res, 'Ese correo o dispositivo ya está vinculado', 409);
+    return handleError(res, error);
+  }
 }
 
 export async function obtenerResumen(req, res) {
@@ -140,7 +172,7 @@ export async function obtenerResumen(req, res) {
         tomasResumen: { tomadas: tomasHoy.filter((t) => t.estado === 'TOMADA').length, pendientes: tomasHoy.filter((t) => t.estado === 'PENDIENTE').length, total: tomasHoy.length },
         mediciones: demoStore.mediciones.filter((item) => item.pacienteId === pacienteId),
         alertas: demoStore.alertas.filter((item) => item.pacienteId === pacienteId).sort((a, b) => ({ CRITICA: 3, ADVERTENCIA: 2, INFORMATIVA: 1 }[b.nivel] - { CRITICA: 3, ADVERTENCIA: 2, INFORMATIVA: 1 }[a.nivel]) || new Date(b.fechaHora) - new Date(a.fechaHora)),
-        dispositivo: demoStore.dispositivo.pacienteId === pacienteId ? demoStore.dispositivo : null
+        dispositivo: demoStore.dispositivos.find((item) => item.pacienteId === pacienteId) ?? null
       });
     }
 

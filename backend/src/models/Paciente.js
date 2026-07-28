@@ -8,7 +8,7 @@ const pacienteSchema = new mongoose.Schema({
   telefonoContacto: { type: String, required: true, trim: true },
   hijoAdminId: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario' },
   usuarioAdultoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario' },
-  dispositivoId: { type: String, required: true, trim: true },
+  dispositivoId: { type: String, required: true, trim: true, uppercase: true, unique: true },
   activo: { type: Boolean, default: true }
 }, { timestamps: true, collection: 'pacientes' });
 

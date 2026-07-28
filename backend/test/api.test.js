@@ -107,6 +107,16 @@ test('PATCH /api/alertas/:id/leida marca una alerta', async () => {
   assert.equal(response.body.data.leida, true);
 });
 
+test('POST /api/pacientes impide vincular un dispositivo que ya pertenece a otro adulto', async () => {
+  const response = await request(app).post('/api/pacientes').set('Authorization', authorization).send({
+    nombre: 'Paciente Duplicado', edad: 70, fechaNacimiento: '1956-01-01',
+    diagnosticos: [], telefonoContacto: '+593980000001', dispositivoId: 'esp32-001',
+    activo: true, correoAcceso: 'duplicado.dispositivo@salud.ec', passwordAcceso: 'Seguro123'
+  });
+  assert.equal(response.status, 409);
+  assert.match(response.body.mensaje, /dispositivo ya está vinculado/i);
+});
+
 test('POST /api/pacientes registra al padre desde el administrador', async () => {
   const response = await request(app).post('/api/pacientes').set('Authorization', authorization).send({
     nombre: 'Roberto Andrade', edad: 74, fechaNacimiento: '1952-02-14',
@@ -122,6 +132,11 @@ test('POST /api/pacientes registra al padre desde el administrador', async () =>
   const loginAdulto = await request(app).post('/api/auth/login').send({ correo: 'roberto@salud.ec', password: 'Roberto123' });
   assert.equal(loginAdulto.status, 200);
   assert.equal(loginAdulto.body.data.usuario.pacienteId, response.body.data._id);
+
+  const device = await request(app).get('/api/dispositivos/ESP32-002/estado').set('Authorization', authorization);
+  assert.equal(device.status, 200);
+  assert.equal(device.body.data.estado, 'DESCONECTADO');
+  assert.equal(device.body.data.pacienteId, response.body.data._id);
 });
 
 test('POST /api/pacientes limita cada administrador a 2 adultos', async () => {

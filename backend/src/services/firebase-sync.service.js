@@ -1,5 +1,6 @@
 import { Dispositivo } from '../models/Dispositivo.js';
 import { Medicion } from '../models/Medicion.js';
+import { Alerta } from '../models/Alerta.js';
 import { getFirebaseConfigStatus, getFirebaseDatabase } from '../config/firebase.js';
 
 const firebaseState = {
@@ -9,6 +10,7 @@ const firebaseState = {
   lastError: null,
   processed: 0,
   ignored: 0,
+  alertsCreated: 0,
 };
 
 let readingsQuery = null;
@@ -43,6 +45,9 @@ export function normalizeFirebaseReading(payload, eventId = '') {
   const dispositivoId = String(payload.dispositivoId ?? payload.deviceId ?? payload.dispositivo ?? '').trim();
   const pulsaciones = firstNumber(payload.pulsaciones, payload.bpm, payload.heartRate, payload.ritmoCardiaco);
   const spo2 = firstNumber(payload.spo2, payload.SpO2, payload.oxigeno);
+  const rawOrigin = String(payload.origen ?? payload.tipoEvento ?? payload.evento ?? 'MAX30102').trim().toUpperCase();
+  const origen = rawOrigin === 'PULSADOR' ? 'PULSADOR' : 'MAX30102';
+  const versionFirmware = String(payload.versionFirmware ?? '').trim();
 
   if (!dispositivoId) throw new Error('dispositivoId es obligatorio');
   if (!Number.isFinite(pulsaciones) || pulsaciones < 25 || pulsaciones > 240) throw new Error('pulsaciones fuera del rango permitido (25-240)');
@@ -52,9 +57,25 @@ export function normalizeFirebaseReading(payload, eventId = '') {
     dispositivoId,
     pulsaciones: Math.round(pulsaciones),
     spo2: Math.round(spo2),
+    origen,
+    ...(versionFirmware ? { versionFirmware } : {}),
     estadoSalud: classifyHealth(pulsaciones, spo2),
     fechaHora: parseTimestamp(payload.timestamp ?? payload.fechaHora ?? payload.createdAt),
     firebaseEventId: eventId || undefined,
+  };
+}
+
+export function buildButtonAlert(reading, pacienteId) {
+  if (reading.origen !== 'PULSADOR') return null;
+  return {
+    pacienteId,
+    firebaseEventId: reading.firebaseEventId,
+    tipo: 'PULSADOR_EMERGENCIA',
+    titulo: 'Botón de ayuda activado',
+    mensaje: `El adulto mayor presionó el pulsador. Última lectura: ${reading.pulsaciones} BPM y SpO₂ ${reading.spo2}%.`,
+    nivel: 'CRITICA',
+    leida: false,
+    fechaHora: reading.fechaHora,
   };
 }
 
@@ -70,11 +91,25 @@ export async function persistFirebaseReading(payload, eventId) {
     $setOnInsert: { ...reading, pacienteId: device.pacienteId },
   }, { upsert: true });
 
+  const buttonAlert = buildButtonAlert(reading, device.pacienteId);
+  let alertInserted = false;
+  if (buttonAlert) {
+    const alertFilter = buttonAlert.firebaseEventId
+      ? { firebaseEventId: buttonAlert.firebaseEventId }
+      : { pacienteId: device.pacienteId, tipo: buttonAlert.tipo, fechaHora: buttonAlert.fechaHora };
+    const alertResult = await Alerta.updateOne(alertFilter, { $setOnInsert: buttonAlert }, { upsert: true });
+    alertInserted = alertResult.upsertedCount === 1;
+  }
+
   await Dispositivo.updateOne({ _id: device._id }, {
-    $set: { estado: 'CONECTADO', ultimaConexion: reading.fechaHora },
+    $set: {
+      estado: 'CONECTADO',
+      ultimaConexion: reading.fechaHora,
+      ...(reading.versionFirmware ? { versionFirmware: reading.versionFirmware } : {}),
+    },
   });
 
-  return { inserted: result.upsertedCount === 1, reading };
+  return { inserted: result.upsertedCount === 1, alertInserted, reading };
 }
 
 export function getFirebaseSyncStatus() {
@@ -104,9 +139,10 @@ export async function startFirebaseSync({ mongoConnected = false } = {}) {
     onReadingAdded = async (snapshot) => {
       try {
         const eventId = `${firebaseState.path}/${snapshot.key}`;
-        const { inserted } = await persistFirebaseReading(snapshot.val(), eventId);
+        const { inserted, alertInserted } = await persistFirebaseReading(snapshot.val(), eventId);
         firebaseState.processed += inserted ? 1 : 0;
         firebaseState.ignored += inserted ? 0 : 1;
+        firebaseState.alertsCreated += alertInserted ? 1 : 0;
         firebaseState.lastSyncAt = new Date().toISOString();
         firebaseState.lastError = null;
       } catch (error) {

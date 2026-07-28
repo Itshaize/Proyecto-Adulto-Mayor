@@ -6,6 +6,7 @@ const medicionSchema = new mongoose.Schema({
   firebaseEventId: { type: String, unique: true, sparse: true },
   pulsaciones: { type: Number, required: true },
   spo2: { type: Number, required: true },
+  origen: { type: String, enum: ['MAX30102', 'PULSADOR'], default: 'MAX30102' },
   estadoSalud: { type: String, enum: ['NORMAL', 'REVISAR', 'ALERTA'], required: true },
   fechaHora: { type: Date, default: Date.now }
 }, { collection: 'mediciones' });

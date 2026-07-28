@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const alertaSchema = new mongoose.Schema({
   pacienteId: { type: mongoose.Schema.Types.ObjectId, ref: 'Paciente', required: true },
+  firebaseEventId: { type: String, unique: true, sparse: true },
   tipo: { type: String, required: true },
   titulo: { type: String, required: true },
   mensaje: { type: String, required: true },

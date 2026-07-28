@@ -13,6 +13,8 @@ npm run dev
 
 Abre `http://localhost:4200` e ingresa con uno de los dos perfiles:
 
+En el modo local temporal actual, Angular detecta automáticamente el nombre o IP con el que se abrió y usa el backend de ese mismo equipo en el puerto `3000`. Para volver a AWS basta cambiar `apiUrl` en `frontend/public/config.js` por `http://3.131.94.209/api`.
+
 ```text
 Administrador: daniel@salud.ec / Admin123
 Adulto mayor: carlos@salud.ec / Admin123
@@ -129,8 +131,11 @@ El ESP32 debe crear cada lectura en `/lecturas/{idEvento}` (ruta configurable co
   "dispositivoId": "ESP32-001",
   "pulsaciones": 72,
   "spo2": 96,
+  "origen": "MAX30102",
   "timestamp": 1784637900000
 }
 ```
+
+Cuando `origen` es `PULSADOR`, el backend guarda la medición y crea una alerta crítica `PULSADOR_EMERGENCIA` para el paciente. El identificador del evento de Firebase impide duplicarla durante una reconexión.
 
 También se aceptan los alias `deviceId`, `bpm`, `heartRate`, `oxigeno` y marcas de tiempo ISO o Unix. El dispositivo debe existir previamente y estar vinculado al paciente. El estado se consulta, con sesión iniciada, en `GET /api/integraciones/firebase/estado`; esa respuesta nunca expone secretos.

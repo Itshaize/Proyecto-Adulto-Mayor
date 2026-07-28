@@ -9,3 +9,4 @@ coverage/
 artifacts/
 *.log
 .DS_Store
+firmware/**/secrets.h
