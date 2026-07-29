@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const alertaSchema = new mongoose.Schema({
   pacienteId: { type: mongoose.Schema.Types.ObjectId, ref: 'Paciente', required: true },
   firebaseEventId: { type: String, unique: true, sparse: true },
-  tipo: { type: String, required: true },
+  tipo: { type: String, enum: ['SPO2_BAJA', 'RITMO_CARDIACO_ANORMAL', 'PULSADOR_EMERGENCIA', 'MEDICAMENTO_NO_CONFIRMADO', 'TOMA_MEDICAMENTO'], required: true },
   titulo: { type: String, required: true },
   mensaje: { type: String, required: true },
   nivel: { type: String, enum: ['INFORMATIVA', 'ADVERTENCIA', 'CRITICA'], required: true },
@@ -12,4 +12,3 @@ const alertaSchema = new mongoose.Schema({
 }, { collection: 'alertas' });
 
 export const Alerta = mongoose.model('Alerta', alertaSchema);
-

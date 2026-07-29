@@ -1,6 +1,7 @@
 import { Dispositivo } from '../models/Dispositivo.js';
 import { Medicion } from '../models/Medicion.js';
 import { Alerta } from '../models/Alerta.js';
+import { TomaMedicamento } from '../models/TomaMedicamento.js';
 import { getFirebaseConfigStatus, getFirebaseDatabase } from '../config/firebase.js';
 
 const firebaseState = {
@@ -50,8 +51,11 @@ export function normalizeFirebaseReading(payload, eventId = '') {
   const versionFirmware = String(payload.versionFirmware ?? '').trim();
 
   if (!dispositivoId) throw new Error('dispositivoId es obligatorio');
-  if (!Number.isFinite(pulsaciones) || pulsaciones < 25 || pulsaciones > 240) throw new Error('pulsaciones fuera del rango permitido (25-240)');
-  if (!Number.isFinite(spo2) || spo2 < 50 || spo2 > 100) throw new Error('SpO2 fuera del rango permitido (50-100)');
+  
+  if (origen === 'MAX30102') {
+    if (!Number.isFinite(pulsaciones) || pulsaciones < 25 || pulsaciones > 240) throw new Error('pulsaciones fuera del rango permitido (25-240)');
+    if (!Number.isFinite(spo2) || spo2 < 50 || spo2 > 100) throw new Error('SpO2 fuera del rango permitido (50-100)');
+  }
 
   return {
     dispositivoId,
@@ -91,14 +95,54 @@ export async function persistFirebaseReading(payload, eventId) {
     $setOnInsert: { ...reading, pacienteId: device.pacienteId },
   }, { upsert: true });
 
-  const buttonAlert = buildButtonAlert(reading, device.pacienteId);
   let alertInserted = false;
-  if (buttonAlert) {
-    const alertFilter = buttonAlert.firebaseEventId
-      ? { firebaseEventId: buttonAlert.firebaseEventId }
-      : { pacienteId: device.pacienteId, tipo: buttonAlert.tipo, fechaHora: buttonAlert.fechaHora };
-    const alertResult = await Alerta.updateOne(alertFilter, { $setOnInsert: buttonAlert }, { upsert: true });
-    alertInserted = alertResult.upsertedCount === 1;
+
+  if (reading.origen === 'PULSADOR') {
+     const today = new Date().toISOString().slice(0, 10);
+     const toma = await TomaMedicamento.findOneAndUpdate(
+       { pacienteId: device.pacienteId, estado: 'PENDIENTE', fechaProgramada: today },
+       { 
+         $set: { 
+           estado: 'TOMADA', 
+           metodoConfirmacion: 'PULSADOR', 
+           fechaHoraConfirmacion: reading.fechaHora 
+         } 
+       },
+       { sort: { horaProgramada: 1 }, new: true }
+     ).populate('medicamentoId');
+
+     let buttonAlert = null;
+     if (toma && toma.medicamentoId) {
+        buttonAlert = {
+          pacienteId: device.pacienteId,
+          firebaseEventId: reading.firebaseEventId,
+          tipo: 'MEDICAMENTO_NO_CONFIRMADO', // Reutilizamos el enum, aunque es informativa
+          titulo: 'Medicamento Confirmado ✓',
+          mensaje: `El adulto mayor confirmó con el botón la toma de ${toma.medicamentoId.nombre} ${toma.medicamentoId.concentracion}.`,
+          nivel: 'INFO',
+          leida: false,
+          fechaHora: reading.fechaHora,
+        };
+     } else {
+        buttonAlert = {
+          pacienteId: device.pacienteId,
+          firebaseEventId: reading.firebaseEventId,
+          tipo: 'INFO', // Esto causará un error de validación Mongoose porque 'INFO' no está en enum de Alerta.tipo. ¡Cambiémoslo a algo en el enum!
+          // Enum permitidos en Alerta: 'SPO2_BAJA', 'MEDICAMENTO_NO_CONFIRMADO', 'RITMO_CARDIACO_ANORMAL'
+          // Usaremos 'MEDICAMENTO_NO_CONFIRMADO' para evitar modificar el modelo ahora, y pondremos nivel 'INFO'
+          titulo: 'Botón presionado',
+          mensaje: `El botón fue presionado pero no hay medicamentos pendientes para hoy.`,
+          nivel: 'INFO',
+          leida: false,
+          fechaHora: reading.fechaHora,
+        };
+     }
+     
+     const alertFilter = buttonAlert.firebaseEventId
+       ? { firebaseEventId: buttonAlert.firebaseEventId }
+       : { pacienteId: device.pacienteId, titulo: buttonAlert.titulo, fechaHora: buttonAlert.fechaHora };
+     const alertResult = await Alerta.updateOne(alertFilter, { $setOnInsert: buttonAlert }, { upsert: true });
+     alertInserted = alertResult.upsertedCount === 1;
   }
 
   await Dispositivo.updateOne({ _id: device._id }, {

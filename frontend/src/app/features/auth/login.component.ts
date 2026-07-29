@@ -12,7 +12,6 @@ import { AuthService } from '../../core/services/auth.service';
       <section class="login-story" aria-label="Descripción del sistema">
         <div class="brand"><img src="assets/kairos-logo.svg" alt="KAIRÓS" /></div>
         <div class="story-copy"><span class="eyebrow">Cuidado familiar</span><h1>Todo lo importante de papá, en un solo lugar.</h1><p>Revisa su salud, acompaña su medicación y recibe alertas cuando realmente se necesite.</p></div>
-        <div class="story-status"><span class="live-dot"></span><div><strong>ESP32-001 conectado</strong><small>Última lectura hace pocos minutos</small></div></div>
       </section>
       <section class="login-panel">
         <form [formGroup]="form" (ngSubmit)="submit()" novalidate>

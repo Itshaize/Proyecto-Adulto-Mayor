@@ -16,12 +16,31 @@ export async function listarMedicamentos(req, res) {
   } catch (error) { return handleError(res, error); }
 }
 
+function getTodayStr() {
+  const ecDate = new Date().toLocaleString("en-US", { timeZone: "America/Guayaquil" });
+  const d = new Date(ecDate);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 export async function crearMedicamento(req, res) {
   if (duplicatedTimes(req.body.horarios)) return fail(res, 'No se admiten horarios repetidos', 422);
   try {
     const medicamento = usingDatabase()
       ? await Medicamento.create(req.body)
       : { ...req.body, _id: new mongoose.Types.ObjectId().toString(), tieneHistorial: false };
+    
+    // Generar tomas para HOY
+    const today = getTodayStr();
+    const tomas = req.body.horarios.map(h => ({
+       pacienteId: req.body.pacienteId,
+       medicamentoId: medicamento._id,
+       fechaProgramada: today,
+       horaProgramada: h,
+       estado: 'PENDIENTE'
+    }));
+    if (usingDatabase()) await TomaMedicamento.insertMany(tomas);
+    else demoStore.tomas.push(...tomas.map(t => ({ ...t, _id: new mongoose.Types.ObjectId().toString() })));
+
     if (!usingDatabase()) demoStore.medicamentos.push(medicamento);
     return ok(res, medicamento, 'Medicamento agregado correctamente', 201);
   } catch (error) { return handleError(res, error); }
@@ -32,11 +51,29 @@ export async function crearReceta(req, res) {
   if (medicamentos.some((item) => duplicatedTimes(item.horarios))) return fail(res, 'La receta contiene horarios repetidos', 422);
   try {
     let creados;
+    const today = getTodayStr();
     if (usingDatabase()) {
       creados = await Medicamento.insertMany(medicamentos, { ordered: true });
+      const tomas = creados.flatMap(med => med.horarios.map(h => ({
+         pacienteId: med.pacienteId,
+         medicamentoId: med._id,
+         fechaProgramada: today,
+         horaProgramada: h,
+         estado: 'PENDIENTE'
+      })));
+      await TomaMedicamento.insertMany(tomas);
     } else {
       creados = medicamentos.map((item) => ({ ...item, _id: new mongoose.Types.ObjectId().toString(), tieneHistorial: false }));
       demoStore.medicamentos.push(...creados);
+      const tomas = creados.flatMap(med => med.horarios.map(h => ({
+         pacienteId: med.pacienteId,
+         medicamentoId: med._id,
+         fechaProgramada: today,
+         horaProgramada: h,
+         estado: 'PENDIENTE',
+         _id: new mongoose.Types.ObjectId().toString()
+      })));
+      demoStore.tomas.push(...tomas);
     }
     return ok(res, creados, `${creados.length} medicamentos agregados desde la receta`, 201);
   } catch (error) { return handleError(res, error); }
