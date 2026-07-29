@@ -11,8 +11,8 @@
         </a>
       }
     </nav>
-    <button class="desktop-notification notification-alert" type="button" (click)="alternarNotificaciones()" aria-haspopup="dialog" aria-label="Notificaciones: tiene un aviso nuevo">
-      <span aria-hidden="true">●</span><span><strong>Notificaciones</strong><small>{{ alertas().length }} aviso(s) nuevo(s)</small></span>
+    <button class="desktop-notification" [class.notification-alert]="alertasNoLeidas().length > 0" type="button" (click)="alternarNotificaciones()" aria-haspopup="dialog" [attr.aria-label]="'Notificaciones: ' + alertasNoLeidas().length + ' sin leer'">
+      <app-icon name="bell" [size]="20"/><span><strong>Notificaciones</strong><small>{{ alertasNoLeidas().length }} aviso(s) nuevo(s)</small></span>
     </button>
     <div class="sidebar__support">
       <span aria-hidden="true">🛡</span>
@@ -26,7 +26,7 @@
       <a class="brand" routerLink="/adulto/inicio" aria-label="KAIRÓS, ir al inicio">
         <img src="assets/kairos-logo.svg" alt="KAIRÓS" />
       </a>
-      <div class="header-buttons"><button class="notification notification-alert" type="button" aria-label="Ver notificaciones, tiene un aviso nuevo" (click)="alternarNotificaciones()" aria-haspopup="dialog">♧<span></span></button><button class="mobile-logout" type="button" (click)="salir()" aria-label="Cerrar sesión"><b aria-hidden="true">↪</b><span>Salir</span></button></div>
+      <div class="header-buttons"><button class="notification" [class.notification-alert]="alertasNoLeidas().length > 0" type="button" [attr.aria-label]="'Ver notificaciones, ' + alertasNoLeidas().length + ' sin leer'" (click)="alternarNotificaciones()" aria-haspopup="dialog"><app-icon name="bell" [size]="25"/>@if(alertasNoLeidas().length){<span>{{alertasNoLeidas().length}}</span>}</button><button class="mobile-logout" type="button" (click)="salir()" aria-label="Cerrar sesión"><b aria-hidden="true">↪</b><span>Salir</span></button></div>
     </header>
     <main><router-outlet /></main>
   </section>
@@ -41,14 +41,42 @@
   </nav>
 
   @if (notificacionesAbiertas()) {
-    <div class="notice-panel card" role="dialog" aria-label="Notificaciones">
-      <div class="notice-panel__header"><h2>Notificaciones</h2><button type="button" (click)="notificacionesAbiertas.set(false)" aria-label="Cerrar notificaciones">×</button></div>
-      @if (alertaPrincipal; as alerta) {
-        <article><span class="notice-icon">▣</span><div><strong>{{ alerta.titulo }}</strong><p>{{ alerta.mensaje }}</p><small>{{ alerta.fechaHora | date:'short' }}</small></div></article>
-      } @else {
-        <article><div><strong>No tiene avisos pendientes</strong><p>Todo está al día.</p></div></article>
-      }
-      <a routerLink="/adulto/receta" (click)="notificacionesAbiertas.set(false)">Ver receta médica</a>
+    <div class="notice-backdrop" (click)="notificacionesAbiertas.set(false)">
+      <section class="notice-panel card" role="dialog" aria-modal="true" aria-labelledby="notifications-title" (click)="$event.stopPropagation()">
+        <div class="notice-panel__header">
+          <div><span class="notice-eyebrow">{{ alertasNoLeidas().length }} sin leer</span><h2 id="notifications-title">Notificaciones</h2></div>
+          <button type="button" (click)="notificacionesAbiertas.set(false)" aria-label="Cerrar notificaciones">×</button>
+        </div>
+
+        @if (errorAlertas()) { <p class="notice-error">{{ errorAlertas() }}</p> }
+
+        @if (cargandoAlertas() && !alertas().length) {
+          <div class="notice-loading"><span></span><span></span><span></span></div>
+        } @else if (alertas().length) {
+          <div class="notice-list">
+            @for (alerta of alertas(); track alerta._id) {
+              <article class="notice-item" [class.is-read]="alerta.leida" [class.is-critical]="alerta.nivel === 'CRITICA'" [class.is-warning]="alerta.nivel === 'ADVERTENCIA'">
+                <span class="notice-icon"><app-icon [name]="iconoAlerta(alerta)" [size]="20"/></span>
+                <div class="notice-copy">
+                  <div class="notice-title"><strong>{{ alerta.titulo }}</strong>@if(!alerta.leida){<i>Nuevo</i>}</div>
+                  <p>{{ alerta.mensaje }}</p>
+                  <small>{{ alerta.fechaHora | date:'d MMM y, h:mm a' }}</small>
+                  <div class="notice-actions">
+                    <a [routerLink]="rutaAlerta(alerta)" (click)="abrirDetalle(alerta)">{{ textoAccion(alerta) }}</a>
+                    @if (!alerta.leida) { <button type="button" (click)="marcarLeida(alerta)">Marcar leída</button> }
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+          <div class="notice-footer">
+            <span>{{ alertas().length }} aviso(s) en total</span>
+            <button type="button" (click)="marcarTodasLeidas()" [disabled]="!alertasNoLeidas().length || marcandoTodas()">{{ marcandoTodas() ? 'Actualizando…' : 'Marcar todas como leídas' }}</button>
+          </div>
+        } @else {
+          <div class="notice-empty"><app-icon name="check" [size]="26"/><strong>No tiene avisos</strong><p>Todo está al día.</p></div>
+        }
+      </section>
     </div>
   }
 
