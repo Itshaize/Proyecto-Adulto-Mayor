@@ -1,7 +1,11 @@
-import { applicationDefault, cert, getApps, initializeApp } from 'firebase-admin/app';
-import { getDatabase } from 'firebase-admin/database';
+import { GoogleAuth } from 'google-auth-library';
 
-const APP_NAME = 'kairos-backend';
+const FIREBASE_SCOPES = [
+  'https://www.googleapis.com/auth/userinfo.email',
+  'https://www.googleapis.com/auth/firebase.database',
+];
+
+let firebaseClient = null;
 
 function clean(value) {
   return typeof value === 'string' ? value.trim() : '';
@@ -24,25 +28,44 @@ export function getFirebaseConfigStatus() {
   };
 }
 
-export function getFirebaseDatabase() {
-  const status = getFirebaseConfigStatus();
-  if (!status.configured) return null;
-
-  const existingApp = getApps().find((app) => app.name === APP_NAME);
-  if (existingApp) return getDatabase(existingApp);
-
+function createAuth() {
   const projectId = clean(process.env.FIREBASE_PROJECT_ID);
   const clientEmail = clean(process.env.FIREBASE_CLIENT_EMAIL);
   const privateKey = clean(process.env.FIREBASE_PRIVATE_KEY).replace(/\\n/g, '\n');
-  const credential = projectId && clientEmail && privateKey
-    ? cert({ projectId, clientEmail, privateKey })
-    : applicationDefault();
+  const credentials = projectId && clientEmail && privateKey
+    ? { project_id: projectId, client_email: clientEmail, private_key: privateKey }
+    : undefined;
 
-  const firebaseApp = initializeApp({
-    credential,
-    databaseURL: clean(process.env.FIREBASE_DATABASE_URL),
-    ...(projectId ? { projectId } : {}),
-  }, APP_NAME);
+  return new GoogleAuth({
+    scopes: FIREBASE_SCOPES,
+    ...(credentials ? { credentials } : {}),
+  });
+}
 
-  return getDatabase(firebaseApp);
+export function getFirebaseClient() {
+  const status = getFirebaseConfigStatus();
+  if (!status.configured) return null;
+  if (firebaseClient) return firebaseClient;
+
+  const databaseURL = clean(process.env.FIREBASE_DATABASE_URL).replace(/\/+$/, '');
+  const auth = createAuth();
+
+  firebaseClient = {
+    async list(path, limit = 100) {
+      const accessToken = await auth.getAccessToken();
+      if (!accessToken) throw new Error('Google no entregó un token de acceso para Firebase');
+
+      const normalizedPath = String(path || '').replace(/^\/+|\/+$/g, '');
+      const query = new URLSearchParams({
+        auth: accessToken,
+        orderBy: '"$key"',
+        limitToLast: String(limit),
+      });
+      const response = await fetch(`${databaseURL}/${normalizedPath}.json?${query}`);
+      if (!response.ok) throw new Error(`Firebase respondió ${response.status}: ${await response.text()}`);
+      return (await response.json()) ?? {};
+    },
+  };
+
+  return firebaseClient;
 }

@@ -4,7 +4,7 @@ Aplicación responsive para el hijo administrador y el adulto mayor, construida 
 
 ## Inicio rápido
 
-Requisitos: Node.js 22 o superior y npm (Firebase Admin 14 requiere Node 22+).
+Requisitos: Node.js 22 o superior y npm.
 
 ```bash
 npm run install:all
@@ -117,7 +117,7 @@ backend/src/
 
 ## Integración IoT con Firebase
 
-El backend usa Firebase Admin para escuchar hasta las 100 lecturas más recientes de Realtime Database y guardar sólo eventos nuevos en MongoDB. Angular nunca recibe las credenciales ni se conecta directamente a Firebase.
+El backend consulta de forma autenticada hasta las 100 lecturas más recientes de Realtime Database cada dos segundos y guarda sólo eventos nuevos en MongoDB. Angular nunca recibe las credenciales ni se conecta directamente a Firebase.
 
 Configura `FIREBASE_DATABASE_URL` y una de estas opciones en `backend/.env`:
 
@@ -136,6 +136,8 @@ El ESP32 debe crear cada lectura en `/lecturas/{idEvento}` (ruta configurable co
 }
 ```
 
-Cuando `origen` es `PULSADOR`, el backend guarda la medición y crea una alerta crítica `PULSADOR_EMERGENCIA` para el paciente. El identificador del evento de Firebase impide duplicarla durante una reconexión.
+Cuando `origen` es `PULSADOR`, el backend crea una alerta crítica `PULSADOR_EMERGENCIA` aunque todavía no existan signos vitales. Si el evento también incluye BPM y SpO₂ válidos, conserva esa medición. El identificador del evento de Firebase impide duplicarlo durante una reconexión.
 
 También se aceptan los alias `deviceId`, `bpm`, `heartRate`, `oxigeno` y marcas de tiempo ISO o Unix. El dispositivo debe existir previamente y estar vinculado al paciente. El estado se consulta, con sesión iniciada, en `GET /api/integraciones/firebase/estado`; esa respuesta nunca expone secretos.
+
+Consulta [GUIA_CONFIGURACION_FIREBASE.md](GUIA_CONFIGURACION_FIREBASE.md) para preparar la computadora del backend, el firmware real y el puente USB autenticado.
