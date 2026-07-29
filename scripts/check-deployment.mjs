@@ -7,7 +7,7 @@ const apiUrl = options.api?.replace(/\/+$/, '');
 const origin = options.origin?.replace(/\/+$/, '');
 
 if (!apiUrl || !origin) {
-  console.error('Uso: npm run check:deployment -- --api=http://HOST_AWS/api --origin=http://HOST_VM');
+  console.error('Uso: npm run check:deployment -- --api=https://DOMINIO_API/api --origin=https://DOMINIO_FRONTEND');
   process.exit(1);
 }
 
@@ -37,7 +37,7 @@ try {
   }
 
   console.info('      CORS correcto');
-  console.info('\nDESPLIEGUE LISTO: la VM puede comunicarse con AWS.');
+  console.info('\nDESPLIEGUE LISTO: el frontend puede comunicarse con AWS.');
 } catch (error) {
   console.error(`\nFALLO: ${error.message}`);
   console.error('Revisa PUBLIC_API_URL, FRONTEND_URLS, Nginx y el Security Group de EC2.');

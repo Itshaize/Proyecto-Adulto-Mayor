@@ -13,7 +13,12 @@ npm run dev
 
 Abre `http://localhost:4200` e ingresa con uno de los dos perfiles:
 
-En el modo local temporal actual, Angular detecta automáticamente el nombre o IP con el que se abrió y usa el backend de ese mismo equipo en el puerto `3000`. Para volver a AWS basta cambiar `apiUrl` en `frontend/public/config.js` por `http://3.131.94.209/api`.
+En desarrollo, Angular usa `http://127.0.0.1:3000/api`. Para producción, el
+paquete de Hostinger se genera con la URL HTTPS pública de AWS:
+
+```bash
+npm run prepare:hostinger -- --api=https://DOMINIO_API/api
+```
 
 ```text
 Administrador: daniel@salud.ec / Admin123
@@ -40,6 +45,7 @@ La semilla usa `upsert`: puede ejecutarse nuevamente sin duplicar el paciente ni
 ```bash
 npm run dev          # API en :3000 y Angular en :4200
 npm run build        # build Angular de producción
+npm run prepare:hostinger -- --api=https://DOMINIO_API/api # paquete public_html
 npm test             # pruebas HTTP del backend
 npm run test:mongodb --prefix backend # integración real en una base aislada
 npm run verify       # pruebas backend + build frontend
@@ -48,9 +54,14 @@ npm run visual:check # capturas headless; requiere Chrome y API activa
 
 El backend también sirve el build ubicado en `frontend/dist` desde `http://localhost:3000`, incluyendo fallback para refrescar rutas Angular.
 
-## Backend en AWS y frontend en otra maquina
+## Backend en AWS y frontend en Hostinger
 
-Sigue [DESPLIEGUE_AWS_VM.md](./DESPLIEGUE_AWS_VM.md). La URL de la API puede configurarse en `frontend/public/config.js` sin cambiar los servicios Angular ni recompilar la aplicacion.
+Sigue [DESPLIEGUE_HOSTINGER_AWS.md](./DESPLIEGUE_HOSTINGER_AWS.md). Las
+instrucciones se separan entre
+[el encargado de AWS](./deploy/aws/README_AMIGO_AWS.md) y
+[el encargado de Hostinger](./deploy/hostinger/README_HOSTINGER.md).
+La alternativa donde el frontend también se instala en una VM se conserva en
+[deploy/frontend-vm](./deploy/frontend-vm/README.md).
 
 ## Rutas implementadas
 

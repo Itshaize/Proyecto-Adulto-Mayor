@@ -1,4 +1,4 @@
-# Backend en AWS y frontend en la VM de la universidad
+# Alternativa: backend en AWS y frontend en la VM de la universidad
 
 La separacion correcta queda asi:
 
@@ -14,7 +14,9 @@ Navegador -> Frontend Angular en la VM -> API Express en AWS -> MongoDB Atlas
 - `API_HOST_AWS`: IP publica, Elastic IP o dominio del EC2.
 - `API_URL`: para una prueba HTTP, `http://API_HOST_AWS/api`; con dominio y TLS, `https://api.ejemplo.com/api`.
 
-Para este proyecto ya se configuró `API_HOST_AWS` como `3.131.94.209`. Mientras no se conozca la dirección de la VM, `backend/.env` usa temporalmente `FRONTEND_URLS=*`; se debe reemplazar por el origen real antes de una entrega pública.
+Para este proyecto `API_HOST_AWS` es `3.131.94.209`. El origen real de la VM
+debe declararse explícitamente en `FRONTEND_URLS`; no se debe usar `*` en una
+entrega pública.
 
 ## 1. Preparar EC2 para el backend
 
@@ -61,7 +63,7 @@ No dejar `MONGODB_URI` vacio en AWS: el modo demostracion guarda datos solo en m
 El repositorio incluye una plantilla de `systemd`. Verificar primero que `which node` devuelva `/usr/bin/node`; si devuelve otra ruta, cambiar `ExecStart` en la plantilla.
 
 ```bash
-sudo cp /opt/kairos/deploy/kairos-api.service.example /etc/systemd/system/kairos-api.service
+sudo cp /opt/kairos/deploy/aws/kairos-api.service /etc/systemd/system/kairos-api.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now kairos-api
 sudo systemctl status kairos-api
@@ -79,7 +81,7 @@ sudo journalctl -u kairos-api -n 100 --no-pager
 Copiar la plantilla y reemplazar `API_HOST_AWS` por la IP o dominio real:
 
 ```bash
-sudo cp /opt/kairos/deploy/nginx-api.conf.example /etc/nginx/sites-available/kairos-api
+sudo cp /opt/kairos/deploy/aws/nginx-kairos-api.conf /etc/nginx/sites-available/kairos-api
 sudo nano /etc/nginx/sites-available/kairos-api
 sudo ln -s /etc/nginx/sites-available/kairos-api /etc/nginx/sites-enabled/kairos-api
 sudo nginx -t
@@ -127,7 +129,7 @@ Para publicar el build mediante Nginx en la VM:
 ```bash
 sudo mkdir -p /var/www/kairos
 sudo cp -r frontend/dist/salud-medicacion-web/browser/. /var/www/kairos/
-sudo cp deploy/nginx-frontend-vm.conf.example /etc/nginx/sites-available/kairos-web
+sudo cp deploy/frontend-vm/nginx-kairos-web.conf /etc/nginx/sites-available/kairos-web
 sudo nano /etc/nginx/sites-available/kairos-web
 sudo ln -s /etc/nginx/sites-available/kairos-web /etc/nginx/sites-enabled/kairos-web
 sudo nginx -t
@@ -150,6 +152,6 @@ También se puede ejecutar la comprobación automática desde cualquier equipo c
 npm run check:deployment -- --api=http://API_HOST_AWS/api --origin=http://IP_O_DOMINIO_DE_LA_VM
 ```
 
-El resultado final esperado es `DESPLIEGUE LISTO: la VM puede comunicarse con AWS.`
+El resultado final esperado es `DESPLIEGUE LISTO: el frontend puede comunicarse con AWS.`
 
 Nunca copiar `backend/.env`, la clave JWT ni credenciales de MongoDB/Firebase al frontend: todo el JavaScript del frontend es visible para quien abre la página.

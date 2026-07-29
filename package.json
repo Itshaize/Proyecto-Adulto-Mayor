@@ -7,6 +7,7 @@
     "dev": "concurrently -n API,WEB -c yellow,cyan \"npm run dev --prefix backend\" \"npm start --prefix frontend\"",
     "preview": "node scripts/serve-static.mjs",
     "build": "npm run build --prefix frontend",
+    "prepare:hostinger": "node scripts/prepare-hostinger.mjs",
     "test": "npm test --prefix backend",
     "test:mongodb": "npm run test:mongodb --prefix backend",
     "verify": "npm test --prefix backend && npm run build --prefix frontend -- --progress=false",
