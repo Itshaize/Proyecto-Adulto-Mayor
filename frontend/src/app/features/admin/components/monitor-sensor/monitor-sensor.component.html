@@ -11,6 +11,9 @@
     <div class="signal-row">
       <span [class.active]="monitor.conectado"><i></i>{{ monitor.conectado ? 'Firebase conectado' : 'Sin señal reciente' }}</span>
       <span [class.active]="monitor.dedoDetectado"><i></i>{{ monitor.dedoDetectado ? 'Dedo detectado' : 'Dedo no detectado' }}</span>
+      @if (monitor.senalIR !== undefined) {
+        <span class="signal-value"><i></i>Señal IR: {{ monitor.senalIR }}</span>
+      }
     </div>
     <small>{{ updatedTime }}</small>
   </div>

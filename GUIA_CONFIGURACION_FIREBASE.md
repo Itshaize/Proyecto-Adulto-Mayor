@@ -42,7 +42,7 @@ GOOGLE_APPLICATION_CREDENTIALS=C:/ruta/segura/firebase-clave.json
 4. Configura `hardware/puente_local/.env` a partir de `.env.example`.
 5. Ejecuta `npm install` y después `npm start` dentro de `hardware/puente_local`.
 
-El firmware no genera valores aleatorios. Mantiene el dedo durante 8 segundos, calcula dos bloques válidos de 4 segundos y envía el promedio. Si alguno de los bloques no permite calcular BPM y SpO₂ válidos, emite un error y no crea una medición. El pulsador confirma la pastilla pendiente más cercana del día.
+El firmware no genera valores aleatorios. Mantiene el dedo durante 8 segundos, calcula cuatro ventanas distribuidas durante ese período y promedia las válidas. Exige al menos dos ventanas válidas; de lo contrario, emite un error y no crea una medición. El pulsador confirma la pastilla pendiente más cercana del día.
 
 ## Seguridad
 

@@ -27,6 +27,8 @@ npm start
 
 La consola debe mostrar que publica eventos en `/lecturas` y el estado en `/estados_dispositivos/ESP32-001`.
 
-El sensor debe mantener el dedo quieto durante los 8 segundos completos. El firmware calcula dos bloques reales de 4 segundos y envía el promedio únicamente si ambos son válidos.
+El sensor debe mantener el dedo quieto durante los 8 segundos completos. El firmware calcula cuatro ventanas reales repartidas en ese período y envía el promedio cuando al menos dos son válidas.
 
 El pulsador físico confirma una sola pastilla pendiente de hoy. No es un botón de emergencia.
+
+La versión corregida debe mostrar `2.1.0-usb`. Mientras espera el dedo, el monitor web enseña la señal IR. Al colocar el dedo debe superar aproximadamente `5000` y comenzar la cuenta regresiva. Si una lectura falla o el sensor queda esperando el retiro, se recupera automáticamente.

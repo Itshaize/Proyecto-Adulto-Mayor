@@ -7,15 +7,18 @@
 constexpr int BUTTON_PIN = 7;
 constexpr int SDA_PIN = 8;
 constexpr int SCL_PIN = 9;
-constexpr long UMBRAL_DEDO = 10000;
+constexpr long UMBRAL_DEDO = 5000;
+constexpr int MUESTRAS_DEDO_CONSECUTIVAS = 5;
 constexpr int DURACION_LECTURA_SEGUNDOS = 8;
 constexpr int MUESTRAS_POR_SEGUNDO = 25;
 constexpr size_t BUFFER_LENGTH = DURACION_LECTURA_SEGUNDOS * MUESTRAS_POR_SEGUNDO;
 constexpr size_t ALGORITHM_BUFFER_LENGTH = 100;
 constexpr unsigned long DEBOUNCE_MS = 50;
+constexpr unsigned long REPORTE_ESPERA_MS = 2000;
+constexpr unsigned long RECUPERACION_RETIRO_MS = 4000;
 
 const char* DISPOSITIVO_ID = "ESP32-001";
-const char* VERSION_FIRMWARE = "2.0.0-usb";
+const char* VERSION_FIRMWARE = "2.1.0-usb";
 
 MAX30105 particleSensor;
 uint32_t irBuffer[BUFFER_LENGTH];
@@ -24,6 +27,7 @@ size_t sampleCount = 0;
 
 int ultimoBpmValido = 0;
 int ultimoSpo2Valido = 0;
+int muestrasDedoConsecutivas = 0;
 
 enum EstadoSensor {
   ESPERANDO_DEDO,
@@ -36,6 +40,8 @@ bool botonCrudoAnterior = HIGH;
 bool botonEstable = HIGH;
 unsigned long ultimoCambioBoton = 0;
 int ultimoSegundoInformado = -1;
+unsigned long ultimoReporteEspera = 0;
+unsigned long tiempoInicioRetiro = 0;
 
 bool calcularBloque(size_t offset, int32_t* bpm, int32_t* spo2) {
   int32_t bpmBloque = 0;
@@ -118,32 +124,40 @@ void iniciarLectura() {
 
 void cancelarLectura() {
   sampleCount = 0;
+  muestrasDedoConsecutivas = 0;
   estadoActual = ESPERANDO_DEDO;
+  particleSensor.clearFIFO();
   imprimirEstado("ESPERANDO_DEDO");
 }
 
 void terminarLectura() {
-  int32_t bpmPrimerBloque = 0;
-  int32_t spo2PrimerBloque = 0;
-  int32_t bpmSegundoBloque = 0;
-  int32_t spo2SegundoBloque = 0;
-  const bool primerBloqueValido = calcularBloque(0, &bpmPrimerBloque, &spo2PrimerBloque);
-  const bool segundoBloqueValido = calcularBloque(
-    ALGORITHM_BUFFER_LENGTH,
-    &bpmSegundoBloque,
-    &spo2SegundoBloque
-  );
-  const bool resultadoValido = primerBloqueValido && segundoBloqueValido;
+  const size_t offsets[] = { 0, 33, 66, 100 };
+  int64_t sumaBpm = 0;
+  int64_t sumaSpo2 = 0;
+  int bloquesValidos = 0;
+
+  for (const size_t offset : offsets) {
+    int32_t bpmBloque = 0;
+    int32_t spo2Bloque = 0;
+    if (calcularBloque(offset, &bpmBloque, &spo2Bloque)) {
+      sumaBpm += bpmBloque;
+      sumaSpo2 += spo2Bloque;
+      bloquesValidos += 1;
+    }
+  }
+
+  const bool resultadoValido = bloquesValidos >= 2;
 
   if (resultadoValido) {
-    ultimoBpmValido = (bpmPrimerBloque + bpmSegundoBloque + 1) / 2;
-    ultimoSpo2Valido = (spo2PrimerBloque + spo2SegundoBloque + 1) / 2;
+    ultimoBpmValido = static_cast<int>((sumaBpm + bloquesValidos / 2) / bloquesValidos);
+    ultimoSpo2Valido = static_cast<int>((sumaSpo2 + bloquesValidos / 2) / bloquesValidos);
     enviarEvento("MAX30102", true);
   } else {
-    Serial.println("{\"estado\":\"ERROR\",\"mensaje\":\"No se pudieron validar los 8 segundos completos; mantenga el dedo quieto e intente nuevamente\"}");
+    Serial.println("{\"estado\":\"ERROR\",\"mensaje\":\"Señal inestable durante los 8 segundos; mantenga el dedo firme e intente nuevamente\"}");
   }
 
   estadoActual = ESPERANDO_RETIRO;
+  tiempoInicioRetiro = millis();
 }
 
 void procesarSensor() {
@@ -154,14 +168,30 @@ void procesarSensor() {
       const uint32_t ir = particleSensor.getIR();
       particleSensor.nextSample();
       if (ir > UMBRAL_DEDO) {
-        iniciarLectura();
-        break;
+        muestrasDedoConsecutivas += 1;
+        if (muestrasDedoConsecutivas >= MUESTRAS_DEDO_CONSECUTIVAS) {
+          iniciarLectura();
+          break;
+        }
+      } else {
+        muestrasDedoConsecutivas = 0;
+      }
+
+      if (millis() - ultimoReporteEspera >= REPORTE_ESPERA_MS) {
+        ultimoReporteEspera = millis();
+        Serial.print("{\"estado\":\"ESPERANDO_DEDO\",\"senalIR\":");
+        Serial.print(ir);
+        Serial.println("}");
       }
     }
     return;
   }
 
   if (estadoActual == ESPERANDO_RETIRO) {
+    if (millis() - tiempoInicioRetiro >= RECUPERACION_RETIRO_MS) {
+      cancelarLectura();
+      return;
+    }
     while (particleSensor.available()) {
       const uint32_t ir = particleSensor.getIR();
       particleSensor.nextSample();

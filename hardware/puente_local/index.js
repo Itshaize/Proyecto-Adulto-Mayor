@@ -89,13 +89,16 @@ function normalizeStatus(data) {
   const segundos = Number(data.segundos);
   const pulsaciones = Number(data.pulsaciones);
   const spo2 = Number(data.spo2);
+  const senalIR = Number(data.senalIR);
+  const origen = String(data.origen || '').trim().toUpperCase();
   return {
     estado,
-    ...(data.origen ? { origen: String(data.origen).trim().toUpperCase() } : {}),
+    ...(origen ? { origen } : {}),
     segundos: data.segundos !== undefined && Number.isFinite(segundos)
       ? Math.max(0, Math.min(8, Math.round(segundos)))
       : null,
-    dedoDetectado: estado === 'LEYENDO' || estado === 'RESULTADO',
+    dedoDetectado: estado === 'LEYENDO' || (estado === 'RESULTADO' && origen === 'MAX30102'),
+    ...(Number.isFinite(senalIR) ? { senalIR: Math.max(0, Math.round(senalIR)) } : {}),
     ...(Number.isFinite(pulsaciones) ? { pulsaciones: Math.round(pulsaciones) } : {}),
     ...(Number.isFinite(spo2) ? { spo2: Math.round(spo2) } : {}),
     ...(data.mensaje ? { mensaje: String(data.mensaje).slice(0, 180) } : {}),
