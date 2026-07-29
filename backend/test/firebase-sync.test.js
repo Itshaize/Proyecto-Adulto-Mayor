@@ -50,6 +50,10 @@ test('rechaza lecturas imposibles antes de escribir en MongoDB', () => {
     () => normalizeFirebaseReading({ dispositivoId: 'ESP32-001', pulsaciones: 72, spo2: 20 }),
     /SpO2 fuera del rango/i,
   );
+  assert.throws(
+    () => normalizeFirebaseReading({ dispositivoId: 'ESP32-001', origen: 'PULSADOR' }),
+    /pulsaciones fuera del rango/i,
+  );
 });
 
 test('clasifica normal, revisión y alerta', () => {

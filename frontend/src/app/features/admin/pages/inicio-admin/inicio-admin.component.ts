@@ -12,7 +12,6 @@ import { GraficoPulsacionesComponent } from '../../components/grafico-pulsacione
 import { GraficoSpo2Component } from '../../components/grafico-spo2/grafico-spo2.component';
 import { HistorialMedicacionComponent } from '../../components/historial-medicacion/historial-medicacion.component';
 import { ListaAlertasComponent } from '../../components/lista-alertas/lista-alertas.component';
-import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector:'app-inicio-admin',standalone:true,
@@ -24,34 +23,19 @@ export class InicioAdminComponent implements OnInit, OnDestroy {
   private readonly cdr=inject(ChangeDetectorRef);
   loading=true; error=''; resumen?:ResumenAdmin;
   readonly pacienteId=getPacienteActivoId();
-  private eventSource?: EventSource;
+  private refreshTimer?: ReturnType<typeof setInterval>;
 
   ngOnInit(){
     this.load();
-    this.setupHardwareListener();
+    this.refreshTimer=setInterval(()=>this.load(false),30_000);
   }
   
   ngOnDestroy() {
-    if (this.eventSource) this.eventSource.close();
+    if(this.refreshTimer)clearInterval(this.refreshTimer);
   }
   
-  setupHardwareListener() {
-    const streamUrl = environment.apiUrl.replace('/api', '') + '/api/hardware/stream';
-    this.eventSource = new EventSource(streamUrl);
-    this.eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.estado === 'RESULTADO') {
-          // Un nuevo resultado del sensor acaba de llegar y guardarse en BD.
-          // Refrescamos el resumen para que se muestre inmediatamente en el panel.
-          this.load();
-        }
-      } catch (e) {}
-    };
-  }
-  
-  load(){
-    this.loading=true;
+  load(showLoading=true){
+    if(showLoading)this.loading=true;
     this.error='';
     this.pacienteService.getResumenPaciente(this.pacienteId).pipe(finalize(()=>this.loading=false)).subscribe({
       next:r=>{this.resumen=r.data; this.cdr.detectChanges();},

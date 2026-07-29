@@ -50,6 +50,20 @@ export class AdultoDataService {
     });
   }
 
+  actualizarSalud(): void {
+    if (!this.pacienteId) return;
+    forkJoin({
+      ultima: this.medicionesApi.getUltima(this.pacienteId),
+      mediciones: this.medicionesApi.getByPaciente(this.pacienteId, 7),
+    }).subscribe({
+      next: ({ ultima, mediciones }) => {
+        this.ultimaMedicion.set(ultima.data);
+        this.estadoGeneral.set(ultima.data.estadoSalud);
+        this.mediciones.set([...mediciones.data].sort((a, b) => new Date(a.fechaHora).getTime() - new Date(b.fechaHora).getTime()));
+      },
+    });
+  }
+
   private cargarDatos(): void {
     if (!this.pacienteId) {
       this.error.set('No se encontró un paciente asociado a la sesión.');
