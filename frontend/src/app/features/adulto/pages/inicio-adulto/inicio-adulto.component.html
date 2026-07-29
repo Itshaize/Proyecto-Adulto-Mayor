@@ -8,6 +8,10 @@
   <a class="medicine-button" routerLink="/adulto/medicinas"><span aria-hidden="true">◒</span><span><strong>Ver mis medicinas</strong><small>Horarios y pastillas de hoy</small></span><b aria-hidden="true">›</b></a>
 </section>
 
+<section class="adult-live-monitor" aria-label="Monitor del sensor en vivo">
+  <app-monitor-sensor [deviceId]="dispositivoId" />
+</section>
+
 <div class="dashboard-grid">
   <app-proxima-pastilla [pastilla]="data.proximaPastilla()" />
   <app-lista-medicamentos-hoy [medicamentos]="data.medicamentos()" />

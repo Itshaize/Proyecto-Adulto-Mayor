@@ -32,10 +32,12 @@
 .reminder-icon { color:var(--secondary); font-size:28px; }.reminder-icon.water { color:#28b7d2; }
 .history-link { display:flex; align-items:center; justify-content:center; gap:12px; min-height:58px; margin-top:18px; color:#1268aa; background:#f2f9fd; border:1px solid #cfe5f3; border-radius:13px; font-size:17px; font-weight:700; text-decoration:none; }
 .mobile-main-actions,.see-medicine{display:none}
+.adult-live-monitor{display:block;min-width:0;max-width:100%;margin:0 0 18px}
 
 @media(max-width:1050px) and (min-width:768px){.welcome{grid-template-columns:1fr;gap:22px;padding:26px 30px}.welcome app-boton-llamar-hijo{min-width:0;padding:22px 0 0;border-top:1px solid var(--border);border-left:0}.dashboard-grid{grid-template-columns:1fr}.reminders{grid-column:auto}}
 @media(max-width:950px){.dashboard-grid{grid-template-columns:1fr}.reminders{grid-column:auto}}
 @media(max-width:767px){
+  .adult-live-monitor{margin:14px 0}
   .welcome{align-items:stretch;padding:18px}.welcome app-boton-llamar-hijo{display:none}.avatar{width:72px;height:72px;font-size:46px}.welcome h1{font-size:25px}.welcome .eyebrow{display:none}.healthy{font-size:17px}
   .mobile-main-actions{display:grid;gap:12px;margin:14px 0}.mobile-main-actions app-boton-llamar-hijo{display:block}.medicine-button{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:14px;min-height:72px;padding:10px 16px;color:var(--text);background:#fff;border:2px solid #b9e0e5;border-radius:16px;text-decoration:none;box-shadow:0 4px 14px rgba(34,77,120,.08)}.medicine-button>span:first-child{display:grid;place-items:center;width:45px;height:45px;color:white;background:var(--primary);border-radius:50%;font-size:25px;transform:rotate(-35deg)}.medicine-button strong,.medicine-button small{display:block}.medicine-button strong{font-size:18px}.medicine-button small{margin-top:4px;color:var(--muted);font-size:14px}.medicine-button b{color:var(--primary);font-size:32px}
   .dashboard-grid{gap:14px}.dashboard-grid>.card{padding:19px}.next-pill{min-height:275px;border:2px solid #f4d39d}.next-pill .section-title{font-size:20px}.pill-content h3{font-size:25px}.pill-content p{font-size:18px}.pill-icon{width:76px;height:76px;font-size:40px}.time{font-size:32px}.next-pill>.status{top:18px;right:16px;bottom:auto}.see-medicine{display:flex;align-items:center;justify-content:center;min-height:60px;margin-top:20px;color:#fff;background:var(--warning);border-radius:13px;font-size:17px;font-weight:800;text-decoration:none}

@@ -8,8 +8,9 @@ import { ProximaPastillaComponent } from '../../components/proxima-pastilla/prox
 import { ListaMedicamentosHoyComponent } from '../../components/lista-medicamentos-hoy/lista-medicamentos-hoy.component';
 import { SaludActualComponent } from '../../components/salud-actual/salud-actual.component';
 import { RecordatoriosComponent } from '../../components/recordatorios/recordatorios.component';
+import { MonitorSensorComponent } from '../../../../shared/monitor-sensor/monitor-sensor.component';
 
-@Component({ selector: 'app-inicio-adulto', imports: [RouterLink, BotonLlamarHijoComponent, GraficoPulsacionesSimpleComponent, SaludoAdultoComponent, ProximaPastillaComponent, ListaMedicamentosHoyComponent, SaludActualComponent, RecordatoriosComponent], templateUrl: './inicio-adulto.component.html', styleUrl: './inicio-adulto.component.scss' })
+@Component({ selector: 'app-inicio-adulto', imports: [RouterLink, BotonLlamarHijoComponent, GraficoPulsacionesSimpleComponent, SaludoAdultoComponent, ProximaPastillaComponent, ListaMedicamentosHoyComponent, SaludActualComponent, RecordatoriosComponent, MonitorSensorComponent], templateUrl: './inicio-adulto.component.html', styleUrl: './inicio-adulto.component.scss' })
 export class InicioAdultoComponent implements OnInit, OnDestroy {
   readonly data = inject(AdultoDataService);
   private refreshTimer?: ReturnType<typeof setInterval>;
@@ -19,6 +20,7 @@ export class InicioAdultoComponent implements OnInit, OnDestroy {
 
   get pulsaciones() { return this.data.mediciones().map(m => m.pulsaciones); }
   get fechas() { return this.data.mediciones().map(m => new Intl.DateTimeFormat('es-EC', { day: '2-digit', month: 'short' }).format(new Date(m.fechaHora))); }
+  get dispositivoId() { return this.data.ultimaMedicion().dispositivoId || 'ESP32-001'; }
   estadoGeneralTexto() { return { NORMAL: 'Todo en orden', REVISAR: 'Debe revisar', ALERTA: 'Necesita ayuda' }[this.data.estadoGeneral()]; }
   estadoTomaTexto(estado: string) { return { PENDIENTE: 'Pendiente', TOMADA: 'Tomada', OMITIDA: 'Omitida' }[estado] ?? estado; }
 }

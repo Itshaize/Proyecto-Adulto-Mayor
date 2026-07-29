@@ -12,7 +12,7 @@ import { GraficoPulsacionesComponent } from '../../components/grafico-pulsacione
 import { GraficoSpo2Component } from '../../components/grafico-spo2/grafico-spo2.component';
 import { HistorialMedicacionComponent } from '../../components/historial-medicacion/historial-medicacion.component';
 import { ListaAlertasComponent } from '../../components/lista-alertas/lista-alertas.component';
-import { MonitorSensorComponent } from '../../components/monitor-sensor/monitor-sensor.component';
+import { MonitorSensorComponent } from '../../../../shared/monitor-sensor/monitor-sensor.component';
 
 @Component({
   selector:'app-inicio-admin',standalone:true,

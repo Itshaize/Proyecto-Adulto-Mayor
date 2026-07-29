@@ -29,6 +29,7 @@ export interface MedicamentoHoy {
 export type TomaMedicamentoDetalle = TomaMedicamento & Omit<MedicamentoHoy, '_id' | 'estado' | 'horaProgramada' | 'medicamentoId' | 'fechaProgramada'>;
 
 export interface Medicion {
+  dispositivoId?: string;
   fechaHora: string;
   pulsaciones: number;
   spo2: number;

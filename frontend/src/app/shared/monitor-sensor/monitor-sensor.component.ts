@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { catchError, of, switchMap, timer } from 'rxjs';
-import { DispositivoService } from '../../../../core/services/dispositivo.service';
-import { MonitorSensor } from '../../../../core/models/domain.models';
+import { DispositivoService } from '../../core/services/dispositivo.service';
+import { MonitorSensor } from '../../core/models/domain.models';
 
 @Component({
   selector: 'app-monitor-sensor',
