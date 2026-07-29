@@ -24,7 +24,7 @@
 .vitals article { display:flex; align-items:center; justify-content:center; gap:14px; min-height:132px; padding:15px; border:1px solid var(--border); border-radius:13px; box-shadow:0 4px 12px rgba(34,77,120,.05); }
 .vitals p { margin:0 0 7px; font-size:14px; font-weight:600; }.vitals strong { display:block; font-size:32px; }.vitals strong small { font-size:18px; }.vitals div > span { color:var(--muted); font-size:13px; }
 .vital-icon { font-size:43px; }.vital-icon.oxygen { color:#2ca8e4; }.vital-icon.oxygen small { font-size:10px; }.vital-icon.heart { color:#13aaa5; }
-.chart-card { min-width:0; }
+.chart-card { min-width:0; max-width:100%; overflow:hidden; }
 .reminders { grid-column:1/-1; }
 .reminder-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 .reminder-grid article { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px; padding:16px; border:1px solid var(--border); border-radius:12px; }
