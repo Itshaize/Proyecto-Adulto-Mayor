@@ -13,7 +13,6 @@ import { requireAuth } from './middleware/auth.js';
 import { fail, ok } from './utils/http.js';
 import swaggerUi from 'swagger-ui-express';
 import { openApiDocument, swaggerOptions } from './docs/openapi.js';
-import { serialEvents, isSerialConnected } from './services/serial-sync.service.js';
 
 export const app = express();
 
@@ -43,28 +42,6 @@ app.use('/api/mediciones', requireAuth, medicionRoutes);
 app.use('/api/alertas', requireAuth, alertaRoutes);
 app.use('/api/dispositivos', requireAuth, dispositivoRoutes);
 app.use('/api/integraciones', requireAuth, integracionRoutes);
-
-// SSE Endpoint para hardware local (sin auth para EventSource nativo)
-app.get('/api/hardware/stream', (req, res) => {
-  res.writeHead(200, {
-    'Content-Type': 'text/event-stream',
-    'Cache-Control': 'no-cache',
-    'Connection': 'keep-alive'
-  });
-  
-  // Enviar estado inicial
-  const estadoInicial = isSerialConnected() ? 'CONECTADO' : 'DESCONECTADO';
-  res.write(`data: ${JSON.stringify({ estado: estadoInicial })}\n\n`);
-
-  const onStatus = (data) => {
-    res.write(`data: ${JSON.stringify(data)}\n\n`);
-  };
-  
-  serialEvents.on('status', onStatus);
-  req.on('close', () => {
-    serialEvents.removeListener('status', onStatus);
-  });
-});
 
 
 const frontendDist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../frontend/dist/salud-medicacion-web/browser');
