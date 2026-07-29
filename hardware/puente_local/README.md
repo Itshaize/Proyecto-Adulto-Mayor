@@ -17,6 +17,8 @@ El puente acepta estos eventos:
 {"estado":"RESULTADO","dispositivoId":"ESP32-001","origen":"PULSADOR"}
 ```
 
+También publica el estado actual en `/estados_dispositivos/ESP32-001`: conexión USB, detección del dedo, cuenta regresiva y resultado. Ese nodo es temporal y no se guarda como parte del historial médico.
+
 No se aceptan lecturas MAX30102 fuera de rango. El pulsador puede generar una emergencia aunque todavía no exista una medición válida.
 
 Nunca copies `firebase-clave.json` dentro del repositorio ni lo compartas por chat.

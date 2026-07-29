@@ -12,11 +12,13 @@ const firebaseState = {
   ignored: 0,
   alertsCreated: 0,
   intervalMs: Number(process.env.FIREBASE_SYNC_INTERVAL_MS || 2000),
+  statusesPath: process.env.FIREBASE_ESTADOS_PATH?.trim() || 'estados_dispositivos',
 };
 
 let syncTimer = null;
 let syncInProgress = false;
 const seenEvents = new Set();
+const deviceStatuses = new Map();
 
 function rememberEvent(eventId) {
   seenEvents.add(eventId);
@@ -141,8 +143,33 @@ export function getFirebaseSyncStatus() {
   return { ...getFirebaseConfigStatus(), ...firebaseState };
 }
 
+export function getDeviceLiveStatus(dispositivoId) {
+  const id = String(dispositivoId || '').trim().toUpperCase();
+  const status = deviceStatuses.get(id);
+  if (!status) {
+    return {
+      dispositivoId: id,
+      estado: 'ESPERANDO_CONEXION',
+      conectado: false,
+      dedoDetectado: false,
+      segundos: null,
+      actualizadoEn: null,
+    };
+  }
+
+  const actualizadoEn = Number(status.actualizadoEn);
+  const stale = !Number.isFinite(actualizadoEn) || Date.now() - actualizadoEn > 15_000;
+  return {
+    dispositivoId: id,
+    ...status,
+    conectado: !stale && status.conectado !== false,
+    estado: stale ? 'DESCONECTADO' : status.estado,
+  };
+}
+
 export async function startFirebaseSync({ mongoConnected = false } = {}) {
   firebaseState.path = process.env.FIREBASE_LECTURAS_PATH?.trim() || 'lecturas';
+  firebaseState.statusesPath = process.env.FIREBASE_ESTADOS_PATH?.trim() || 'estados_dispositivos';
   firebaseState.intervalMs = Math.max(1000, Number(process.env.FIREBASE_SYNC_INTERVAL_MS || 2000));
   firebaseState.lastError = null;
 
@@ -165,7 +192,16 @@ export async function startFirebaseSync({ mongoConnected = false } = {}) {
       if (syncInProgress) return true;
       syncInProgress = true;
       try {
-        const readings = await firebase.list(firebaseState.path, 100);
+        const [readings, statuses] = await Promise.all([
+          firebase.list(firebaseState.path, 100),
+          firebase.get(firebaseState.statusesPath),
+        ]);
+        deviceStatuses.clear();
+        if (statuses && typeof statuses === 'object') {
+          for (const [id, status] of Object.entries(statuses)) {
+            if (status && typeof status === 'object') deviceStatuses.set(id.toUpperCase(), status);
+          }
+        }
         let lastEventError = null;
         for (const [key, payload] of Object.entries(readings)) {
           const eventId = `${firebaseState.path}/${key}`;
@@ -217,5 +253,6 @@ export function stopFirebaseSync() {
   syncTimer = null;
   syncInProgress = false;
   seenEvents.clear();
+  deviceStatuses.clear();
   firebaseState.active = false;
 }

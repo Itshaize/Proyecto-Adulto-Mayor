@@ -6,4 +6,17 @@ export interface Toma { _id: string; pacienteId: string; medicamentoId: string; 
 export interface Medicion { _id: string; pacienteId: string; dispositivoId: string; pulsaciones: number; spo2: number; estadoSalud: EstadoSalud; fechaHora: string; }
 export interface Alerta { _id: string; pacienteId: string; tipo: string; titulo: string; mensaje: string; nivel: 'INFORMATIVA' | 'ADVERTENCIA' | 'CRITICA'; leida: boolean; fechaHora: string; }
 export interface Dispositivo { _id: string; dispositivoId: string; pacienteId: string; estado: EstadoDispositivo; ultimaConexion: string | null; versionFirmware: string; }
+export type EstadoMonitorSensor = 'INICIANDO' | 'LISTO' | 'ESPERANDO_DEDO' | 'LEYENDO' | 'RESULTADO' | 'ERROR' | 'INFO' | 'DESCONECTADO' | 'ESPERANDO_CONEXION';
+export interface MonitorSensor {
+  dispositivoId: string;
+  estado: EstadoMonitorSensor;
+  conectado: boolean;
+  dedoDetectado: boolean;
+  segundos: number | null;
+  actualizadoEn: number | null;
+  pulsaciones?: number;
+  spo2?: number;
+  mensaje?: string;
+  versionFirmware?: string;
+}
 export interface ResumenAdmin { paciente: Paciente; ultimaMedicion: Medicion | null; medicamentosHoy: Toma[]; tomasResumen: { tomadas: number; pendientes: number; total: number }; mediciones: Medicion[]; alertas: Alerta[]; dispositivo: Dispositivo | null; }

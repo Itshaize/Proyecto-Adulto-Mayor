@@ -22,6 +22,7 @@ El frontend no accede directamente a Realtime Database. Firebase desacopla la co
 ```env
 FIREBASE_DATABASE_URL=https://TU-PROYECTO-default-rtdb.firebaseio.com
 FIREBASE_LECTURAS_PATH=lecturas
+FIREBASE_ESTADOS_PATH=estados_dispositivos
 GOOGLE_APPLICATION_CREDENTIALS=C:/ruta/segura/firebase-clave.json
 ```
 

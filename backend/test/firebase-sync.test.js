@@ -84,3 +84,16 @@ test('GET /api/integraciones/firebase/estado no expone secretos', async () => {
   assert.equal(response.body.data.privateKey, undefined);
   assert.equal(response.body.data.clientEmail, undefined);
 });
+
+test('GET /api/integraciones/firebase/monitor entrega un estado seguro por defecto', async () => {
+  const token = jwt.sign({ sub: '66a000000000000000000010', rol: 'HIJO_ADMIN' }, 'demo-secret');
+  const response = await request(app)
+    .get('/api/integraciones/firebase/monitor/ESP32-001')
+    .set('Authorization', `Bearer ${token}`);
+
+  assert.equal(response.status, 200);
+  assert.equal(response.body.data.dispositivoId, 'ESP32-001');
+  assert.equal(response.body.data.estado, 'ESPERANDO_CONEXION');
+  assert.equal(response.body.data.conectado, false);
+  assert.equal(response.body.data.dedoDetectado, false);
+});

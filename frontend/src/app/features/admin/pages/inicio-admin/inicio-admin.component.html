@@ -4,6 +4,9 @@
   @if(error){<div class="inline-error">{{error}} <button class="btn-link" type="button" (click)="load()">Reintentar</button></div>}
   @if(resumen;as r){
     <app-resumen-salud [metrics]="metrics" />
+    @if(r.dispositivo;as dispositivo){
+      <app-monitor-sensor [deviceId]="dispositivo.dispositivoId" />
+    }
     <div class="dashboard-grid">
       <div class="left-column">
         <section><div class="section-title"><div><h2>Estado del paciente</h2></div></div><app-tarjeta-paciente [paciente]="r.paciente" /></section>

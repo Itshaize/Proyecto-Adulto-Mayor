@@ -51,6 +51,15 @@ export function getFirebaseClient() {
   const auth = createAuth();
 
   firebaseClient = {
+    async get(path) {
+      const accessToken = await auth.getAccessToken();
+      if (!accessToken) throw new Error('Google no entregó un token de acceso para Firebase');
+
+      const normalizedPath = String(path || '').replace(/^\/+|\/+$/g, '');
+      const response = await fetch(`${databaseURL}/${normalizedPath}.json?auth=${encodeURIComponent(accessToken)}`);
+      if (!response.ok) throw new Error(`Firebase respondió ${response.status}: ${await response.text()}`);
+      return (await response.json()) ?? null;
+    },
     async list(path, limit = 100) {
       const accessToken = await auth.getAccessToken();
       if (!accessToken) throw new Error('Google no entregó un token de acceso para Firebase');

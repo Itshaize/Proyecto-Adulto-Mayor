@@ -8,7 +8,10 @@ constexpr int BUTTON_PIN = 7;
 constexpr int SDA_PIN = 8;
 constexpr int SCL_PIN = 9;
 constexpr long UMBRAL_DEDO = 10000;
-constexpr size_t BUFFER_LENGTH = 100;
+constexpr int DURACION_LECTURA_SEGUNDOS = 8;
+constexpr int MUESTRAS_POR_SEGUNDO = 25;
+constexpr size_t BUFFER_LENGTH = DURACION_LECTURA_SEGUNDOS * MUESTRAS_POR_SEGUNDO;
+constexpr size_t ALGORITHM_BUFFER_LENGTH = 100;
 constexpr unsigned long DEBOUNCE_MS = 50;
 
 const char* DISPOSITIVO_ID = "ESP32-001";
@@ -82,9 +85,11 @@ void procesarPulsador() {
 
 void iniciarLectura() {
   sampleCount = 0;
-  ultimoSegundoInformado = 4;
+  ultimoSegundoInformado = DURACION_LECTURA_SEGUNDOS;
   estadoActual = LEYENDO;
-  Serial.println("{\"estado\":\"LEYENDO\",\"segundos\":4}");
+  Serial.print("{\"estado\":\"LEYENDO\",\"segundos\":");
+  Serial.print(DURACION_LECTURA_SEGUNDOS);
+  Serial.println("}");
 }
 
 void cancelarLectura() {
@@ -95,9 +100,9 @@ void cancelarLectura() {
 
 void terminarLectura() {
   maxim_heart_rate_and_oxygen_saturation(
-    irBuffer,
-    BUFFER_LENGTH,
-    redBuffer,
+    irBuffer + (BUFFER_LENGTH - ALGORITHM_BUFFER_LENGTH),
+    ALGORITHM_BUFFER_LENGTH,
+    redBuffer + (BUFFER_LENGTH - ALGORITHM_BUFFER_LENGTH),
     &spo2Calculado,
     &spo2Valido,
     &ritmoCalculado,
@@ -163,7 +168,10 @@ void procesarSensor() {
     irBuffer[sampleCount] = ir;
     sampleCount += 1;
 
-    const int segundosRestantes = max(1, 4 - static_cast<int>(sampleCount / 25));
+    const int segundosRestantes = max(
+      1,
+      DURACION_LECTURA_SEGUNDOS - static_cast<int>(sampleCount / MUESTRAS_POR_SEGUNDO)
+    );
     if (segundosRestantes != ultimoSegundoInformado && sampleCount < BUFFER_LENGTH) {
       ultimoSegundoInformado = segundosRestantes;
       Serial.print("{\"estado\":\"LEYENDO\",\"segundos\":");

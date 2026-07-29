@@ -12,10 +12,11 @@ import { GraficoPulsacionesComponent } from '../../components/grafico-pulsacione
 import { GraficoSpo2Component } from '../../components/grafico-spo2/grafico-spo2.component';
 import { HistorialMedicacionComponent } from '../../components/historial-medicacion/historial-medicacion.component';
 import { ListaAlertasComponent } from '../../components/lista-alertas/lista-alertas.component';
+import { MonitorSensorComponent } from '../../components/monitor-sensor/monitor-sensor.component';
 
 @Component({
   selector:'app-inicio-admin',standalone:true,
-  imports:[RouterLink,IconComponent,ResumenSaludComponent,TarjetaPacienteComponent,TablaMedicamentosComponent,GraficoPulsacionesComponent,GraficoSpo2Component,HistorialMedicacionComponent,ListaAlertasComponent],
+  imports:[RouterLink,IconComponent,ResumenSaludComponent,TarjetaPacienteComponent,TablaMedicamentosComponent,GraficoPulsacionesComponent,GraficoSpo2Component,HistorialMedicacionComponent,ListaAlertasComponent,MonitorSensorComponent],
   templateUrl:'./inicio-admin.component.html',styleUrl:'./inicio-admin.component.scss'
 })
 export class InicioAdminComponent implements OnInit, OnDestroy {

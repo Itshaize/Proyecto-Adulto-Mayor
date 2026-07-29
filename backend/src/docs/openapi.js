@@ -60,6 +60,7 @@ export const openApiDocument = {
     '/api/alertas/{id}/leida': { patch: { tags: ['Alertas'], summary: 'Marcar una alerta como leída', security: bearer, parameters: [idParameter()], responses: standardResponses('Alerta actualizada') } },
     '/api/dispositivos/{dispositivoId}/estado': { get: { tags: ['Dispositivos'], summary: 'Consultar conexión del ESP32', security: bearer, parameters: [idParameter('dispositivoId', 'Código físico del dispositivo, por ejemplo ESP32-001')], responses: standardResponses('Estado del dispositivo') } },
     '/api/integraciones/firebase/estado': { get: { tags: ['Integraciones'], summary: 'Consultar configuración y sincronización Firebase', security: bearer, responses: standardResponses('Estado seguro, sin exponer credenciales') } },
+    '/api/integraciones/firebase/monitor/{dispositivoId}': { get: { tags: ['Integraciones'], summary: 'Consultar detección y cuenta regresiva del sensor en vivo', security: bearer, parameters: [{ name: 'dispositivoId', in: 'path', required: true, schema: { type: 'string', example: 'ESP32-001' } }], responses: standardResponses('Estado temporal del sensor') } },
   },
   components: {
     securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT', description: 'Pega únicamente el token devuelto por login o register.' } },

@@ -1,0 +1,48 @@
+<section class="sensor-monitor" [class.is-reading]="monitor.estado === 'LEYENDO'" [class.has-result]="monitor.estado === 'RESULTADO'" [class.has-error]="monitor.estado === 'ERROR' || !monitor.conectado">
+  <div class="monitor-copy">
+    <div class="monitor-kicker">
+      <span class="live-dot"></span>
+      Monitor en vivo
+      <span class="device-id">{{ deviceId }}</span>
+    </div>
+    <h2>{{ statusTitle }}</h2>
+    <p>{{ statusDetail }}</p>
+
+    <div class="signal-row">
+      <span [class.active]="monitor.conectado"><i></i>{{ monitor.conectado ? 'Firebase conectado' : 'Sin señal reciente' }}</span>
+      <span [class.active]="monitor.dedoDetectado"><i></i>{{ monitor.dedoDetectado ? 'Dedo detectado' : 'Dedo no detectado' }}</span>
+    </div>
+    <small>{{ updatedTime }}</small>
+  </div>
+
+  <div class="reading-stage">
+    <div class="timer-ring" [style.--progress]="progress + '%'">
+      <div class="timer-core">
+        @if (monitor.estado === 'LEYENDO') {
+          <strong>{{ secondsLeft }}</strong>
+          <span>segundos</span>
+        } @else if (monitor.estado === 'RESULTADO') {
+          <strong class="check">✓</strong>
+          <span>recibido</span>
+        } @else {
+          <span class="fingerprint" aria-hidden="true">◎</span>
+          <span>sensor</span>
+        }
+      </div>
+    </div>
+    <div class="pulse-line" aria-hidden="true">
+      <span></span><i></i><b></b><i></i><span></span>
+    </div>
+  </div>
+
+  <div class="result-panel">
+    <article>
+      <span class="metric-icon heart">♥</span>
+      <div><small>Pulsaciones</small><strong>{{ monitor.pulsaciones ?? '—' }} <em>lpm</em></strong></div>
+    </article>
+    <article>
+      <span class="metric-icon oxygen">O₂</span>
+      <div><small>Oxigenación</small><strong>{{ monitor.spo2 ?? '—' }}<em>%</em></strong></div>
+    </article>
+  </div>
+</section>
