@@ -23,12 +23,26 @@ La instancia informada usa la IP `3.131.94.209`.
 
 Durante la preparación del 29 de julio de 2026:
 
-- `http://3.131.94.209/api/salud` respondió `502 Bad Gateway`.
-- Nginx sí estaba activo.
-- `https://3.131.94.209` no aceptó conexiones en el puerto 443.
+- inicialmente `http://3.131.94.209/api/salud` respondió `502 Bad Gateway`;
+- al finalizar el despliegue, los puertos 80 y 443 dejaron de aceptar
+  conexiones;
+- la API debe recuperarse y publicarse por HTTPS antes de la prueba integral.
 
-El `502` significa que Nginx no puede comunicarse con Express en
-`127.0.0.1:3000`. La guía de AWS contiene el procedimiento para recuperarlo.
+La guía de AWS contiene el procedimiento para revisar Express, Nginx, el
+firewall y el certificado.
+
+## Frontend publicado
+
+El frontend fue desplegado mediante el MCP oficial de Hostinger en:
+
+```text
+https://greenyellow-finch-398448.hostingersite.com
+```
+
+Hostinger responde `200` para `/`, `/login` y `/adulto-mayor`. El paquete
+publicado conserva temporalmente `http://3.131.94.209/api` en `config.js`.
+Cuando exista el dominio HTTPS del backend, se debe reemplazar ese valor sin
+necesidad de recompilar Angular.
 
 ## Orden obligatorio
 
