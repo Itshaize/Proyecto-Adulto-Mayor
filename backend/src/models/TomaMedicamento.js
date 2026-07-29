@@ -8,6 +8,7 @@ const tomaSchema = new mongoose.Schema({
   estado: { type: String, enum: ['PENDIENTE', 'TOMADA', 'OMITIDA'], default: 'PENDIENTE', required: true },
   metodoConfirmacion: { type: String, enum: ['PULSADOR', 'APP', 'ADMIN'] },
   fechaHoraConfirmacion: Date,
+  firebaseEventId: { type: String, unique: true, sparse: true },
   observacion: { type: String, trim: true, maxlength: 500, default: '' }
 }, { collection: 'tomas_medicamentos', versionKey: false });
 

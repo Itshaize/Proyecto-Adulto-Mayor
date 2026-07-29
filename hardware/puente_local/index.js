@@ -91,6 +91,7 @@ function normalizeStatus(data) {
   const spo2 = Number(data.spo2);
   return {
     estado,
+    ...(data.origen ? { origen: String(data.origen).trim().toUpperCase() } : {}),
     segundos: data.segundos !== undefined && Number.isFinite(segundos)
       ? Math.max(0, Math.min(8, Math.round(segundos)))
       : null,

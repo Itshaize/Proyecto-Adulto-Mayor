@@ -18,5 +18,6 @@ export interface MonitorSensor {
   spo2?: number;
   mensaje?: string;
   versionFirmware?: string;
+  origen?: 'MAX30102' | 'PULSADOR';
 }
 export interface ResumenAdmin { paciente: Paciente; ultimaMedicion: Medicion | null; medicamentosHoy: Toma[]; tomasResumen: { tomadas: number; pendientes: number; total: number }; mediciones: Medicion[]; alertas: Alerta[]; dispositivo: Dispositivo | null; }

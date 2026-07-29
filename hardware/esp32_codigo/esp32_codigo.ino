@@ -22,10 +22,6 @@ uint32_t irBuffer[BUFFER_LENGTH];
 uint32_t redBuffer[BUFFER_LENGTH];
 size_t sampleCount = 0;
 
-int32_t spo2Calculado = 0;
-int8_t spo2Valido = 0;
-int32_t ritmoCalculado = 0;
-int8_t ritmoValido = 0;
 int ultimoBpmValido = 0;
 int ultimoSpo2Valido = 0;
 
@@ -40,6 +36,35 @@ bool botonCrudoAnterior = HIGH;
 bool botonEstable = HIGH;
 unsigned long ultimoCambioBoton = 0;
 int ultimoSegundoInformado = -1;
+
+bool calcularBloque(size_t offset, int32_t* bpm, int32_t* spo2) {
+  int32_t bpmBloque = 0;
+  int8_t bpmValidoBloque = 0;
+  int32_t spo2Bloque = 0;
+  int8_t spo2ValidoBloque = 0;
+
+  maxim_heart_rate_and_oxygen_saturation(
+    irBuffer + offset,
+    ALGORITHM_BUFFER_LENGTH,
+    redBuffer + offset,
+    &spo2Bloque,
+    &spo2ValidoBloque,
+    &bpmBloque,
+    &bpmValidoBloque
+  );
+
+  const bool valido = bpmValidoBloque == 1
+    && spo2ValidoBloque == 1
+    && bpmBloque >= 25
+    && bpmBloque <= 240
+    && spo2Bloque >= 50
+    && spo2Bloque <= 100;
+  if (!valido) return false;
+
+  *bpm = bpmBloque;
+  *spo2 = spo2Bloque;
+  return true;
+}
 
 void imprimirEstado(const char* estado) {
   Serial.print("{\"estado\":\"");
@@ -78,8 +103,7 @@ void procesarPulsador() {
   botonEstable = lectura;
 
   if (botonEstable == LOW) {
-    const bool hayLecturaPrevia = ultimoBpmValido > 0 && ultimoSpo2Valido > 0;
-    enviarEvento("PULSADOR", hayLecturaPrevia);
+    enviarEvento("PULSADOR", false);
   }
 }
 
@@ -99,29 +123,24 @@ void cancelarLectura() {
 }
 
 void terminarLectura() {
-  maxim_heart_rate_and_oxygen_saturation(
-    irBuffer + (BUFFER_LENGTH - ALGORITHM_BUFFER_LENGTH),
+  int32_t bpmPrimerBloque = 0;
+  int32_t spo2PrimerBloque = 0;
+  int32_t bpmSegundoBloque = 0;
+  int32_t spo2SegundoBloque = 0;
+  const bool primerBloqueValido = calcularBloque(0, &bpmPrimerBloque, &spo2PrimerBloque);
+  const bool segundoBloqueValido = calcularBloque(
     ALGORITHM_BUFFER_LENGTH,
-    redBuffer + (BUFFER_LENGTH - ALGORITHM_BUFFER_LENGTH),
-    &spo2Calculado,
-    &spo2Valido,
-    &ritmoCalculado,
-    &ritmoValido
+    &bpmSegundoBloque,
+    &spo2SegundoBloque
   );
-
-  const bool resultadoValido = ritmoValido == 1
-    && spo2Valido == 1
-    && ritmoCalculado >= 25
-    && ritmoCalculado <= 240
-    && spo2Calculado >= 50
-    && spo2Calculado <= 100;
+  const bool resultadoValido = primerBloqueValido && segundoBloqueValido;
 
   if (resultadoValido) {
-    ultimoBpmValido = ritmoCalculado;
-    ultimoSpo2Valido = spo2Calculado;
+    ultimoBpmValido = (bpmPrimerBloque + bpmSegundoBloque + 1) / 2;
+    ultimoSpo2Valido = (spo2PrimerBloque + spo2SegundoBloque + 1) / 2;
     enviarEvento("MAX30102", true);
   } else {
-    Serial.println("{\"estado\":\"ERROR\",\"mensaje\":\"Lectura inestable; mantenga el dedo quieto e intente nuevamente\"}");
+    Serial.println("{\"estado\":\"ERROR\",\"mensaje\":\"No se pudieron validar los 8 segundos completos; mantenga el dedo quieto e intente nuevamente\"}");
   }
 
   estadoActual = ESPERANDO_RETIRO;

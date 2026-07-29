@@ -55,11 +55,14 @@ export class AdultoDataService {
     forkJoin({
       ultima: this.medicionesApi.getUltima(this.pacienteId),
       mediciones: this.medicionesApi.getByPaciente(this.pacienteId, 7),
+      tomasHoy: this.tomasApi.getHoy(this.pacienteId),
     }).subscribe({
-      next: ({ ultima, mediciones }) => {
+      next: ({ ultima, mediciones, tomasHoy }) => {
         this.ultimaMedicion.set(ultima.data);
         this.estadoGeneral.set(ultima.data.estadoSalud);
         this.mediciones.set([...mediciones.data].sort((a, b) => new Date(a.fechaHora).getTime() - new Date(b.fechaHora).getTime()));
+        this.medicamentos.set(this.enriquecerTomas(tomasHoy.data, []));
+        this.recalcularHistorialDeHoy();
       },
     });
   }

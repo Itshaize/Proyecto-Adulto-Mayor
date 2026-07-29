@@ -14,7 +14,7 @@ export class InicioAdultoComponent implements OnInit, OnDestroy {
   readonly data = inject(AdultoDataService);
   private refreshTimer?: ReturnType<typeof setInterval>;
 
-  ngOnInit() { this.refreshTimer=setInterval(()=>this.data.actualizarSalud(),30_000); }
+  ngOnInit() { this.refreshTimer=setInterval(()=>this.data.actualizarSalud(),5_000); }
   ngOnDestroy() { if(this.refreshTimer)clearInterval(this.refreshTimer); }
 
   get pulsaciones() { return this.data.mediciones().map(m => m.pulsaciones); }

@@ -28,7 +28,7 @@ export class InicioAdminComponent implements OnInit, OnDestroy {
 
   ngOnInit(){
     this.load();
-    this.refreshTimer=setInterval(()=>this.load(false),30_000);
+    this.refreshTimer=setInterval(()=>this.load(false),5_000);
   }
   
   ngOnDestroy() {

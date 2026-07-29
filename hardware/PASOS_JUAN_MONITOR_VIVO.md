@@ -26,3 +26,7 @@ npm start
 ```
 
 La consola debe mostrar que publica eventos en `/lecturas` y el estado en `/estados_dispositivos/ESP32-001`.
+
+El sensor debe mantener el dedo quieto durante los 8 segundos completos. El firmware calcula dos bloques reales de 4 segundos y envía el promedio únicamente si ambos son válidos.
+
+El pulsador físico confirma una sola pastilla pendiente de hoy. No es un botón de emergencia.

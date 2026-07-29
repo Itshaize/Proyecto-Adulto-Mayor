@@ -81,6 +81,7 @@ export class MonitorSensorComponent implements OnInit, OnDestroy {
 
   get statusTitle() {
     if (!this.apiAvailable) return 'Backend sin conexión';
+    if (this.monitor.estado === 'RESULTADO' && this.monitor.origen === 'PULSADOR') return 'Pulsador de pastilla recibido';
     return {
       INICIANDO: 'Preparando el sensor',
       LISTO: 'Sensor listo',
@@ -97,6 +98,9 @@ export class MonitorSensorComponent implements OnInit, OnDestroy {
   get statusDetail() {
     if (!this.apiAvailable) return 'No se pudo consultar el estado en vivo.';
     if (this.monitor.mensaje) return this.monitor.mensaje;
+    if (this.monitor.estado === 'RESULTADO' && this.monitor.origen === 'PULSADOR') {
+      return 'El servidor está registrando la próxima pastilla pendiente de hoy.';
+    }
     return {
       INICIANDO: 'El puente está conectándose con el ESP32.',
       LISTO: 'Coloque el dedo sobre el MAX30102.',

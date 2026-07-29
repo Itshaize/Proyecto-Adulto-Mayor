@@ -136,7 +136,7 @@ El ESP32 debe crear cada lectura en `/lecturas/{idEvento}` (ruta configurable co
 }
 ```
 
-Cuando `origen` es `PULSADOR`, el backend crea una alerta crítica `PULSADOR_EMERGENCIA` aunque todavía no existan signos vitales. Si el evento también incluye BPM y SpO₂ válidos, conserva esa medición. El identificador del evento de Firebase impide duplicarlo durante una reconexión.
+Cuando `origen` es `PULSADOR`, el backend confirma una sola pastilla pendiente del día con el método `PULSADOR`. Prioriza la toma vencida más cercana y, si aún no hay una vencida, la siguiente programada. El evento no crea una emergencia ni duplica los últimos signos vitales. El identificador de Firebase evita confirmar dos pastillas durante una reconexión.
 
 También se aceptan los alias `deviceId`, `bpm`, `heartRate`, `oxigeno` y marcas de tiempo ISO o Unix. El dispositivo debe existir previamente y estar vinculado al paciente. El estado se consulta, con sesión iniciada, en `GET /api/integraciones/firebase/estado`; esa respuesta nunca expone secretos.
 

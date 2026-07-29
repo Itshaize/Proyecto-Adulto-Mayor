@@ -1,7 +1,9 @@
 import { Dispositivo } from '../models/Dispositivo.js';
 import { Medicion } from '../models/Medicion.js';
 import { Alerta } from '../models/Alerta.js';
+import { TomaMedicamento } from '../models/TomaMedicamento.js';
 import { getFirebaseClient, getFirebaseConfigStatus } from '../config/firebase.js';
+import { dateInTimeZone, timeInTimeZone } from '../utils/date.js';
 
 const firebaseState = {
   active: false,
@@ -85,21 +87,68 @@ export function normalizeFirebaseReading(payload, eventId = '') {
   };
 }
 
-export function buildButtonAlert(reading, pacienteId) {
-  if (reading.origen !== 'PULSADOR') return null;
-  const readingDetail = reading.pulsaciones !== null && reading.spo2 !== null
-    ? ` Última lectura: ${reading.pulsaciones} BPM y SpO₂ ${reading.spo2}%.`
-    : ' No había una medición válida disponible al presionar el botón.';
-  return {
+export function selectPendingMedication(takes, currentTime) {
+  const ordered = [...takes].sort((a, b) => a.horaProgramada.localeCompare(b.horaProgramada));
+  const due = ordered.filter((take) => take.horaProgramada <= currentTime);
+  return due.at(-1) ?? ordered[0] ?? null;
+}
+
+export async function confirmMedicationFromButton(reading, pacienteId) {
+  if (reading.origen !== 'PULSADOR') return { handled: false, confirmed: false, take: null };
+
+  if (reading.firebaseEventId) {
+    const existingTake = await TomaMedicamento.findOne({ firebaseEventId: reading.firebaseEventId }).lean();
+    if (existingTake) return { handled: true, confirmed: false, duplicate: true, take: existingTake };
+    const existingNotice = await Alerta.exists({ firebaseEventId: reading.firebaseEventId });
+    if (existingNotice) return { handled: true, confirmed: false, duplicate: true, take: null };
+  }
+
+  const fechaProgramada = dateInTimeZone(reading.fechaHora);
+  const horaActual = timeInTimeZone(reading.fechaHora);
+  const pending = await TomaMedicamento.find({
     pacienteId,
-    firebaseEventId: reading.firebaseEventId,
-    tipo: 'PULSADOR_EMERGENCIA',
-    titulo: 'Botón de ayuda activado',
-    mensaje: `El adulto mayor presionó el pulsador.${readingDetail}`,
-    nivel: 'CRITICA',
-    leida: false,
-    fechaHora: reading.fechaHora,
-  };
+    fechaProgramada,
+    estado: 'PENDIENTE',
+  }).lean();
+  const selected = selectPendingMedication(pending, horaActual);
+
+  if (!selected) {
+    await Alerta.updateOne(
+      { firebaseEventId: reading.firebaseEventId },
+      {
+        $setOnInsert: {
+          pacienteId,
+          firebaseEventId: reading.firebaseEventId,
+          tipo: 'TOMA_MEDICAMENTO',
+          titulo: 'Pulsador de medicación presionado',
+          mensaje: 'Se presionó el pulsador, pero no había pastillas pendientes para hoy.',
+          nivel: 'INFORMATIVA',
+          leida: false,
+          fechaHora: reading.fechaHora,
+        },
+      },
+      { upsert: true },
+    );
+    console.info(`[Firebase] Pulsador ${reading.dispositivoId}: no había pastillas pendientes para hoy.`);
+    return { handled: true, confirmed: false, noPending: true, take: null };
+  }
+
+  const take = await TomaMedicamento.findOneAndUpdate(
+    { _id: selected._id, estado: 'PENDIENTE' },
+    {
+      $set: {
+        estado: 'TOMADA',
+        metodoConfirmacion: 'PULSADOR',
+        fechaHoraConfirmacion: reading.fechaHora,
+        firebaseEventId: reading.firebaseEventId,
+        observacion: 'Confirmada con el pulsador físico del ESP32',
+      },
+    },
+    { new: true },
+  ).lean();
+
+  if (take) console.info(`[Firebase] Pastilla ${take._id} confirmada mediante ${reading.dispositivoId}.`);
+  return { handled: true, confirmed: Boolean(take), take };
 }
 
 export async function persistFirebaseReading(payload, eventId) {
@@ -109,7 +158,9 @@ export async function persistFirebaseReading(payload, eventId) {
 
   let inserted = false;
   let alertInserted = false;
-  if (reading.pulsaciones !== null && reading.spo2 !== null) {
+  let medicationConfirmed = false;
+  let buttonHandled = false;
+  if (reading.origen === 'MAX30102' && reading.pulsaciones !== null && reading.spo2 !== null) {
     const filter = reading.firebaseEventId
       ? { firebaseEventId: reading.firebaseEventId }
       : { dispositivoId: reading.dispositivoId, fechaHora: reading.fechaHora };
@@ -119,13 +170,10 @@ export async function persistFirebaseReading(payload, eventId) {
     inserted = result.upsertedCount === 1;
   }
 
-  const buttonAlert = buildButtonAlert(reading, device.pacienteId);
-  if (buttonAlert) {
-    const alertFilter = buttonAlert.firebaseEventId
-      ? { firebaseEventId: buttonAlert.firebaseEventId }
-      : { pacienteId: device.pacienteId, tipo: buttonAlert.tipo, fechaHora: buttonAlert.fechaHora };
-    const alertResult = await Alerta.updateOne(alertFilter, { $setOnInsert: buttonAlert }, { upsert: true });
-    alertInserted = alertResult.upsertedCount === 1;
+  if (reading.origen === 'PULSADOR') {
+    const medication = await confirmMedicationFromButton(reading, device.pacienteId);
+    buttonHandled = medication.handled;
+    medicationConfirmed = medication.confirmed;
   }
 
   await Dispositivo.updateOne({ _id: device._id }, {
@@ -136,7 +184,7 @@ export async function persistFirebaseReading(payload, eventId) {
     },
   });
 
-  return { inserted, alertInserted, reading };
+  return { inserted, alertInserted, medicationConfirmed, buttonHandled, reading };
 }
 
 export function getFirebaseSyncStatus() {
@@ -207,8 +255,8 @@ export async function startFirebaseSync({ mongoConnected = false } = {}) {
           const eventId = `${firebaseState.path}/${key}`;
           if (seenEvents.has(eventId)) continue;
           try {
-            const { inserted, alertInserted } = await persistFirebaseReading(payload, eventId);
-            const handled = inserted || alertInserted;
+            const { inserted, alertInserted, medicationConfirmed, buttonHandled } = await persistFirebaseReading(payload, eventId);
+            const handled = inserted || alertInserted || medicationConfirmed || buttonHandled;
             firebaseState.processed += handled ? 1 : 0;
             firebaseState.ignored += handled ? 0 : 1;
             firebaseState.alertsCreated += alertInserted ? 1 : 0;

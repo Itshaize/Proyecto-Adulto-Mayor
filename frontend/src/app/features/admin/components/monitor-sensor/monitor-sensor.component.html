@@ -36,13 +36,20 @@
   </div>
 
   <div class="result-panel">
-    <article>
-      <span class="metric-icon heart">♥</span>
-      <div><small>Pulsaciones</small><strong>{{ monitor.pulsaciones ?? '—' }} <em>lpm</em></strong></div>
-    </article>
-    <article>
-      <span class="metric-icon oxygen">O₂</span>
-      <div><small>Oxigenación</small><strong>{{ monitor.spo2 ?? '—' }}<em>%</em></strong></div>
-    </article>
+    @if (monitor.estado === 'RESULTADO' && monitor.origen === 'PULSADOR') {
+      <article class="pill-confirmation">
+        <span class="metric-icon pill">✓</span>
+        <div><small>Medicamento</small><strong>Confirmación enviada</strong></div>
+      </article>
+    } @else {
+      <article>
+        <span class="metric-icon heart">♥</span>
+        <div><small>Pulsaciones</small><strong>{{ monitor.pulsaciones ?? '—' }} <em>lpm</em></strong></div>
+      </article>
+      <article>
+        <span class="metric-icon oxygen">O₂</span>
+        <div><small>Oxigenación</small><strong>{{ monitor.spo2 ?? '—' }}<em>%</em></strong></div>
+      </article>
+    }
   </div>
 </section>

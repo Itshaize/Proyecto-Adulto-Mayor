@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import request from 'supertest';
 import jwt from 'jsonwebtoken';
 import { app } from '../src/app.js';
-import { buildButtonAlert, classifyHealth, normalizeFirebaseReading } from '../src/services/firebase-sync.service.js';
+import { classifyHealth, normalizeFirebaseReading, selectPendingMedication } from '../src/services/firebase-sync.service.js';
 
 test('normaliza el contrato de lectura enviado por el ESP32', () => {
   const reading = normalizeFirebaseReading({
@@ -24,36 +24,28 @@ test('normaliza el contrato de lectura enviado por el ESP32', () => {
   assert.equal(reading.fechaHora.toISOString(), '2024-07-21T22:13:20.000Z');
 });
 
-test('convierte el evento del pulsador en una alerta critica deduplicable', () => {
+test('normaliza el pulsador como confirmación de medicamento', () => {
   const reading = normalizeFirebaseReading({
     dispositivoId: 'ESP32-001',
-    pulsaciones: 78,
-    spo2: 97,
     origen: 'PULSADOR',
     timestamp: 1_721_600_000_000,
   }, 'lecturas/evento-boton-1');
 
-  const alert = buildButtonAlert(reading, '66a000000000000000000001');
   assert.equal(reading.origen, 'PULSADOR');
-  assert.equal(alert.tipo, 'PULSADOR_EMERGENCIA');
-  assert.equal(alert.nivel, 'CRITICA');
-  assert.equal(alert.firebaseEventId, 'lecturas/evento-boton-1');
-  assert.match(alert.mensaje, /78 BPM/);
-});
-
-test('acepta una emergencia sin medición y no inventa signos vitales', () => {
-  const reading = normalizeFirebaseReading({
-    dispositivoId: 'ESP32-001',
-    origen: 'PULSADOR',
-    timestamp: 1_721_600_000_000,
-  }, 'lecturas/evento-boton-sin-medicion');
-
-  const alert = buildButtonAlert(reading, '66a000000000000000000001');
+  assert.equal(reading.firebaseEventId, 'lecturas/evento-boton-1');
   assert.equal(reading.pulsaciones, null);
   assert.equal(reading.spo2, null);
-  assert.equal(reading.estadoSalud, null);
-  assert.equal(alert.tipo, 'PULSADOR_EMERGENCIA');
-  assert.match(alert.mensaje, /no había una medición válida/i);
+});
+
+test('el pulsador elige la toma vencida más cercana o la próxima del día', () => {
+  const takes = [
+    { _id: 'noche', horaProgramada: '20:00' },
+    { _id: 'desayuno', horaProgramada: '08:00' },
+    { _id: 'almuerzo', horaProgramada: '13:00' },
+  ];
+  assert.equal(selectPendingMedication(takes, '14:00')._id, 'almuerzo');
+  assert.equal(selectPendingMedication(takes, '07:00')._id, 'desayuno');
+  assert.equal(selectPendingMedication([], '14:00'), null);
 });
 
 test('rechaza lecturas imposibles antes de escribir en MongoDB', () => {
